@@ -1,0 +1,545 @@
+<!DOCTYPE html><html lang="zh-CN"><head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 5.4.0">
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+
+
+
+
+
+
+<script class="next-config" data-name="main" type="application/json">{&quot;hostname&quot;:&quot;www.tomhjx.top&quot;,&quot;root&quot;:&quot;&#x2F;&quot;,&quot;images&quot;:&quot;&#x2F;images&quot;,&quot;scheme&quot;:&quot;Mist&quot;,&quot;version&quot;:&quot;8.5.0&quot;,&quot;exturl&quot;:false,&quot;sidebar&quot;:{&quot;position&quot;:&quot;left&quot;,&quot;display&quot;:&quot;post&quot;,&quot;padding&quot;:18,&quot;offset&quot;:12},&quot;copycode&quot;:false,&quot;bookmark&quot;:{&quot;enable&quot;:false,&quot;color&quot;:&quot;#222&quot;,&quot;save&quot;:&quot;auto&quot;},&quot;fancybox&quot;:false,&quot;mediumzoom&quot;:false,&quot;lazyload&quot;:false,&quot;pangu&quot;:false,&quot;comments&quot;:{&quot;style&quot;:&quot;tabs&quot;,&quot;active&quot;:null,&quot;storage&quot;:true,&quot;lazyload&quot;:false,&quot;nav&quot;:null},&quot;motion&quot;:{&quot;enable&quot;:false,&quot;async&quot;:false,&quot;transition&quot;:{&quot;post_block&quot;:&quot;fadeIn&quot;,&quot;post_header&quot;:&quot;fadeInDown&quot;,&quot;post_body&quot;:&quot;fadeInDown&quot;,&quot;coll_header&quot;:&quot;fadeInLeft&quot;,&quot;sidebar&quot;:&quot;fadeInUp&quot;}},&quot;prism&quot;:false,&quot;i18n&quot;:{&quot;placeholder&quot;:&quot;搜索...&quot;,&quot;empty&quot;:&quot;没有找到任何搜索结果：${query}&quot;,&quot;hits_time&quot;:&quot;找到 ${hits} 个搜索结果（用时 ${time} 毫秒）&quot;,&quot;hits&quot;:&quot;找到 ${hits} 个搜索结果&quot;},&quot;path&quot;:&quot;&#x2F;search.xml&quot;,&quot;localsearch&quot;:{&quot;enable&quot;:true,&quot;trigger&quot;:&quot;auto&quot;,&quot;top_n_per_article&quot;:1,&quot;unescape&quot;:false,&quot;preload&quot;:false}}</script>
+<meta name="description" content="糟糕的SQL查询语句可对整个应用程序的运行产生严重的影响，其不仅消耗掉更多的数据库时间，且它将对其他应用组件产生影响。 　　如同其它学科，优化查询性能很大程度上决定于开发者的直觉。幸运的是，像MySQL这样的数据库自带有一些协助工具。本文简要讨论诸多工具之三种：使用索引，使用EXPLAIN分析查询以及调整MySQL的内部配置。 　　一、使用索引　　　MySQL允许对数据库表进行索引，以此能迅速查找">
+<meta property="og:type" content="article">
+<meta property="og:title" content="mySQL查询优化">
+<meta property="og:url" content="https://www.tomhjx.top/2016/01/03/mySQL%E6%9F%A5%E8%AF%A2%E4%BC%98%E5%8C%96/index.html">
+<meta property="og:site_name" content="疯狂的茶几">
+<meta property="og:description" content="糟糕的SQL查询语句可对整个应用程序的运行产生严重的影响，其不仅消耗掉更多的数据库时间，且它将对其他应用组件产生影响。 　　如同其它学科，优化查询性能很大程度上决定于开发者的直觉。幸运的是，像MySQL这样的数据库自带有一些协助工具。本文简要讨论诸多工具之三种：使用索引，使用EXPLAIN分析查询以及调整MySQL的内部配置。 　　一、使用索引　　　MySQL允许对数据库表进行索引，以此能迅速查找">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2016-01-03T09:35:28.000Z">
+<meta property="article:modified_time" content="2021-07-17T10:27:26.828Z">
+<meta property="article:author" content="疯狂的茶几">
+<meta property="article:tag" content="MySQL">
+<meta name="twitter:card" content="summary">
+
+
+<link rel="canonical" href="https://www.tomhjx.top/2016/01/03/mySQL%E6%9F%A5%E8%AF%A2%E4%BC%98%E5%8C%96/">
+
+
+
+<script class="next-config" data-name="page" type="application/json">{&quot;sidebar&quot;:&quot;&quot;,&quot;isHome&quot;:false,&quot;isPost&quot;:true,&quot;lang&quot;:&quot;zh-CN&quot;,&quot;comments&quot;:true,&quot;permalink&quot;:&quot;https:&#x2F;&#x2F;www.tomhjx.top&#x2F;2016&#x2F;01&#x2F;03&#x2F;mySQL%E6%9F%A5%E8%AF%A2%E4%BC%98%E5%8C%96&#x2F;&quot;,&quot;path&quot;:&quot;2016&#x2F;01&#x2F;03&#x2F;mySQL查询优化&#x2F;&quot;,&quot;title&quot;:&quot;mySQL查询优化&quot;}</script>
+
+<script class="next-config" data-name="calendar" type="application/json">&quot;&quot;</script>
+<title>mySQL查询优化 | 疯狂的茶几</title>
+  
+
+
+
+<script data-ad-client="ca-pub-5611057674493702" async="" src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
+  <style>@-moz-keyframes next-shake{0%{transform:translate(1pt,1pt) rotate(0)}10%{transform:translate(-1pt,-2pt) rotate(-1deg)}20%{transform:translate(-3pt,0) rotate(1deg)}30%{transform:translate(3pt,2pt) rotate(0)}40%{transform:translate(1pt,-1pt) rotate(1deg)}50%{transform:translate(-1pt,2pt) rotate(-1deg)}60%{transform:translate(-3pt,1pt) rotate(0)}70%{transform:translate(3pt,1pt) rotate(-1deg)}80%{transform:translate(-1pt,-1pt) rotate(1deg)}90%{transform:translate(1pt,2pt) rotate(0)}to{transform:translate(1pt,-2pt) rotate(-1deg)}}@-webkit-keyframes next-shake{0%{transform:translate(1pt,1pt) rotate(0)}10%{transform:translate(-1pt,-2pt) rotate(-1deg)}20%{transform:translate(-3pt,0) rotate(1deg)}30%{transform:translate(3pt,2pt) rotate(0)}40%{transform:translate(1pt,-1pt) rotate(1deg)}50%{transform:translate(-1pt,2pt) rotate(-1deg)}60%{transform:translate(-3pt,1pt) rotate(0)}70%{transform:translate(3pt,1pt) rotate(-1deg)}80%{transform:translate(-1pt,-1pt) rotate(1deg)}90%{transform:translate(1pt,2pt) rotate(0)}to{transform:translate(1pt,-2pt) rotate(-1deg)}}@-o-keyframes next-shake{0%{transform:translate(1pt,1pt) rotate(0)}10%{transform:translate(-1pt,-2pt) rotate(-1deg)}20%{transform:translate(-3pt,0) rotate(1deg)}30%{transform:translate(3pt,2pt) rotate(0)}40%{transform:translate(1pt,-1pt) rotate(1deg)}50%{transform:translate(-1pt,2pt) rotate(-1deg)}60%{transform:translate(-3pt,1pt) rotate(0)}70%{transform:translate(3pt,1pt) rotate(-1deg)}80%{transform:translate(-1pt,-1pt) rotate(1deg)}90%{transform:translate(1pt,2pt) rotate(0)}to{transform:translate(1pt,-2pt) rotate(-1deg)}}@keyframes next-shake{0%{transform:translate(1pt,1pt) rotate(0)}10%{transform:translate(-1pt,-2pt) rotate(-1deg)}20%{transform:translate(-3pt,0) rotate(1deg)}30%{transform:translate(3pt,2pt) rotate(0)}40%{transform:translate(1pt,-1pt) rotate(1deg)}50%{transform:translate(-1pt,2pt) rotate(-1deg)}60%{transform:translate(-3pt,1pt) rotate(0)}70%{transform:translate(3pt,1pt) rotate(-1deg)}80%{transform:translate(-1pt,-1pt) rotate(1deg)}90%{transform:translate(1pt,2pt) rotate(0)}to{transform:translate(1pt,-2pt) rotate(-1deg)}}@-moz-keyframes octocat-wave{0%,to{transform:rotate(0)}20%,60%{transform:rotate(-25deg)}40%,80%{transform:rotate(10deg)}}@-webkit-keyframes octocat-wave{0%,to{transform:rotate(0)}20%,60%{transform:rotate(-25deg)}40%,80%{transform:rotate(10deg)}}@-o-keyframes octocat-wave{0%,to{transform:rotate(0)}20%,60%{transform:rotate(-25deg)}40%,80%{transform:rotate(10deg)}}@keyframes octocat-wave{0%,to{transform:rotate(0)}20%,60%{transform:rotate(-25deg)}40%,80%{transform:rotate(10deg)}}@-moz-keyframes icon-animate{0%,to{transform:scale(1)}10%,30%{transform:scale(.9)}20%,40%,50%,60%,70%,80%{transform:scale(1.1)}}@-webkit-keyframes icon-animate{0%,to{transform:scale(1)}10%,30%{transform:scale(.9)}20%,40%,50%,60%,70%,80%{transform:scale(1.1)}}@-o-keyframes icon-animate{0%,to{transform:scale(1)}10%,30%{transform:scale(.9)}20%,40%,50%,60%,70%,80%{transform:scale(1.1)}}@keyframes icon-animate{0%,to{transform:scale(1)}10%,30%{transform:scale(.9)}20%,40%,50%,60%,70%,80%{transform:scale(1.1)}}@-moz-keyframes next-roll{0%{transform:rotateZ(30deg)}to{transform:rotateZ(-30deg)}}@-webkit-keyframes next-roll{0%{transform:rotateZ(30deg)}to{transform:rotateZ(-30deg)}}@-o-keyframes next-roll{0%{transform:rotateZ(30deg)}to{transform:rotateZ(-30deg)}}@keyframes next-roll{0%{transform:rotateZ(30deg)}to{transform:rotateZ(-30deg)}}@-moz-keyframes dot-flash{0%{opacity:1;transform:scale(1)}to{opacity:0;transform:scale(.8)}}@-webkit-keyframes dot-flash{0%{opacity:1;transform:scale(1)}to{opacity:0;transform:scale(.8)}}@-o-keyframes dot-flash{0%{opacity:1;transform:scale(1)}to{opacity:0;transform:scale(.8)}}@keyframes dot-flash{0%{opacity:1;transform:scale(1)}to{opacity:0;transform:scale(.8)}}:root{--body-bg-color:#fff;--content-bg-color:#f5f5f5;--card-bg-color:#f5f5f5;--text-color:#555;--blockquote-color:#666;--link-color:#555;--link-hover-color:#222;--brand-color:#222;--brand-hover-color:#222;--table-row-odd-bg-color:#f9f9f9;--table-row-hover-bg-color:#f5f5f5;--menu-item-bg-color:#ddd;--btn-default-bg:transparent;--btn-default-color:var(--link-color);--btn-default-border-color:var(--link-color);--btn-default-hover-bg:transparent;--btn-default-hover-color:var(--link-hover-color);--btn-default-hover-border-color:var(--link-hover-color);--highlight-background:#f0f0f0;--highlight-foreground:#444;--highlight-gutter-background:#dedede;--highlight-gutter-foreground:#555}@media (prefers-color-scheme:dark){:root{--body-bg-color:#282828;--content-bg-color:#333;--card-bg-color:#555;--text-color:#ccc;--blockquote-color:#bbb;--link-color:#ccc;--link-hover-color:#eee;--brand-color:#ddd;--brand-hover-color:#ddd;--table-row-odd-bg-color:#282828;--table-row-hover-bg-color:#363636;--menu-item-bg-color:#555;--btn-default-bg:#222;--btn-default-color:#ccc;--btn-default-border-color:#555;--btn-default-hover-bg:#666;--btn-default-hover-color:#ccc;--btn-default-hover-border-color:#666;--highlight-background:#1d1f21;--highlight-foreground:#c5c8c6;--highlight-gutter-background:#2d2f31;--highlight-gutter-foreground:#b4b7b5}img{opacity:.75}img:hover{opacity:.9}}html{line-height:1.15;-webkit-text-size-adjust:100%}body{margin:0}details,main{display:block}hr{box-sizing:content-box;overflow:visible;background-image:repeating-linear-gradient(-45deg,#ddd,#ddd 4px,transparent 4px,transparent 8px);border:0;height:2px;margin:20px 0}kbd,pre,samp{font-size:1em}samp{font-family:monospace,monospace}a{background:0 0;border-bottom:1px solid #ccc;color:var(--link-color);cursor:pointer;outline:0;text-decoration:none;overflow-wrap:break-word}abbr[title]{border-bottom:none;text-decoration:underline dotted}b,strong{font-weight:bolder}small{font-size:80%}sub,sup{font-size:75%;line-height:0;position:relative;vertical-align:baseline}sub{bottom:-.25em}sup{top:-.5em}img{border-style:none}button,input,optgroup,select,textarea{font-family:inherit;font-size:100%;line-height:1.15;margin:0}button,input{overflow:visible}button,select{text-transform:none}[type=button],[type=reset],[type=submit],button{-webkit-appearance:button}[type=button]::-moz-focus-inner,[type=reset]::-moz-focus-inner,[type=submit]::-moz-focus-inner,button::-moz-focus-inner{border-style:none;padding:0}[type=button]:-moz-focusring,[type=reset]:-moz-focusring,[type=submit]:-moz-focusring,button:-moz-focusring{outline:1px dotted ButtonText}fieldset{padding:.35em .75em .625em}legend{color:inherit;display:table;max-width:100%;white-space:normal}progress{vertical-align:baseline}textarea{overflow:auto}[type=checkbox],[type=radio],legend{box-sizing:border-box;padding:0}[type=number]::-webkit-inner-spin-button,[type=number]::-webkit-outer-spin-button{height:auto}[type=search]{outline-offset:-2px;-webkit-appearance:textfield}[type=search]::-webkit-search-decoration{-webkit-appearance:none}::-webkit-file-upload-button{font:inherit;-webkit-appearance:button}summary{display:list-item}[hidden],template{display:none}::selection{background:#262a30;color:#eee}body,html{height:100%}body,h1,h2,h3,h4,h5,h6{font-family:Lato,'PingFang SC','Microsoft YaHei',sans-serif}body{background:var(--body-bg-color);color:var(--text-color);line-height:2;min-height:100%;position:relative;transition:padding .2s ease-in-out}h1,h2,h3,h4,h5,h6{font-weight:700;line-height:1.5;margin:20px 0 15px}h1{font-size:1.5em}h2{font-size:1.375em}h3{font-size:1.25em}h4{font-size:1.125em}body,h5{font-size:1em}h6{font-size:.875em}p,table{margin:0 0 20px}a:hover{border-bottom-color:var(--link-hover-color);color:var(--link-hover-color)}embed,iframe,img,video{display:block;margin-left:auto;margin-right:auto;max-width:100%}blockquote{border-left:4px solid #ddd;color:var(--blockquote-color);margin:0;padding:0 15px}blockquote cite::before{content:'-';padding:0 5px}dt{font-weight:700}dd{margin:0;padding:0}.table-container{overflow:auto}table{border-collapse:collapse;border-spacing:0;font-size:.875em;width:100%}tbody tr:nth-of-type(odd){background:var(--table-row-odd-bg-color)}tbody tr:hover{background:var(--table-row-hover-bg-color)}caption,td,th{padding:8px}td,th{border:1px solid #ddd;border-bottom:3px solid #ddd}th{font-weight:700;padding-bottom:10px}td{border-bottom-width:1px}.btn{background:var(--btn-default-bg);border:2px solid var(--btn-default-border-color);border-radius:0;color:var(--btn-default-color);display:inline-block;font-size:.875em;line-height:2;transition:background-color .2s ease-in-out}.btn:hover{background:var(--btn-default-hover-bg);border-color:var(--btn-default-hover-border-color);color:var(--btn-default-hover-color)}.btn+.btn{margin:0 0 8px 8px}.btn .fa-fw{text-align:left;width:1.285714285714286em}.toggle{line-height:0}.toggle .toggle-line{background:#fff;display:block;height:2px;left:0;position:relative;top:0;transition:all .4s;width:100%}.toggle .toggle-line:not(:first-child){margin-top:3px}.toggle.toggle-arrow .toggle-line:first-child{left:50%;top:2px;transform:rotate(45deg);width:50%}.toggle.toggle-arrow .toggle-line:last-child{left:50%;top:-2px;transform:rotate(-45deg);width:50%}.toggle.toggle-close .toggle-line:nth-child(2){opacity:0}.toggle.toggle-close .toggle-line:first-child{top:5px;transform:rotate(45deg)}.toggle.toggle-close .toggle-line:last-child{top:-5px;transform:rotate(-45deg)}.hljs{display:block;overflow-x:auto;padding:.5em;background:#f0f0f0}.hljs,.hljs-subst{color:#444}.hljs-comment{color:#888}.hljs-attribute,.hljs-doctag,.hljs-keyword,.hljs-meta-keyword,.hljs-name,.hljs-selector-tag{font-weight:700}.hljs-deletion,.hljs-number,.hljs-quote,.hljs-selector-class,.hljs-selector-id,.hljs-string,.hljs-template-tag,.hljs-type{color:#800}.hljs-section,.hljs-title{color:#800;font-weight:700}.hljs-link,.hljs-regexp,.hljs-selector-attr,.hljs-selector-pseudo,.hljs-symbol,.hljs-template-variable,.hljs-variable{color:#bc6060}.hljs-literal{color:#78a960}.hljs-addition,.hljs-built_in,.hljs-bullet,.hljs-code{color:#397300}.hljs-meta{color:#1f7199}.hljs-meta-string{color:#4d99bf}.hljs-emphasis{font-style:italic}.hljs-strong{font-weight:700}@media (prefers-color-scheme:dark){.hljs-comment,.hljs-quote{color:#969896}.hljs-deletion,.hljs-name,.hljs-regexp,.hljs-selector-class,.hljs-selector-id,.hljs-tag,.hljs-template-variable,.hljs-variable{color:#c66}.hljs-built_in,.hljs-builtin-name,.hljs-link,.hljs-literal,.hljs-meta,.hljs-number,.hljs-params,.hljs-type{color:#de935f}.hljs-attribute{color:#f0c674}.hljs-addition,.hljs-bullet,.hljs-string,.hljs-symbol{color:#b5bd68}.hljs-section,.hljs-title{color:#81a2be}.hljs-keyword,.hljs-selector-tag{color:#b294bb}.hljs{display:block;overflow-x:auto;background:#1d1f21;color:#c5c8c6;padding:.5em}.hljs-emphasis{font-style:italic}.hljs-strong{font-weight:700}}code,figure.highlight,kbd,pre{background:var(--highlight-background);color:var(--highlight-foreground)}figure.highlight,pre{line-height:1.6;margin:0 auto 20px}code,pre{font-family:consolas,Menlo,monospace,'PingFang SC','Microsoft YaHei'}code{border-radius:3px;font-size:.875em;padding:2px 4px;overflow-wrap:break-word}kbd{border:2px solid #ccc;border-radius:.2em;box-shadow:.1em .1em .2em rgba(0,0,0,.1);font-family:inherit;padding:.1em .3em;white-space:nowrap}figure.highlight,pre{position:relative}figure.highlight pre{border:0;margin:0;padding:10px 0}figure.highlight table{border:0;margin:0;width:auto}figure.highlight td{border:0;padding:0}figure.highlight figcaption,pre .caption,pre figcaption{background:var(--highlight-gutter-background);color:var(--highlight-foreground);display:flow-root;font-size:.875em;line-height:1.2;padding:.5em}figure.highlight figcaption a,pre .caption a,pre figcaption a{color:var(--highlight-foreground);float:right}figure.highlight figcaption a:hover,pre .caption a:hover,pre figcaption a:hover{border-bottom-color:var(--highlight-foreground)}figure.highlight .gutter{-moz-user-select:none;-ms-user-select:none;-webkit-user-select:none;user-select:none}figure.highlight .gutter pre{background:var(--highlight-gutter-background);color:var(--highlight-gutter-foreground);padding-left:10px;padding-right:10px;text-align:right}figure.highlight .code pre{padding-left:10px;width:100%}pre .caption,pre figcaption{margin-bottom:10px}.gist table{width:auto}.gist table td{border:0}pre{overflow:auto;padding:10px}pre code{background:0 0;padding:0;text-shadow:none}.blockquote-center{border-left:none;margin:40px 0;padding:0;position:relative;text-align:center}.blockquote-center::after,.blockquote-center::before{left:0;line-height:1;opacity:.6;position:absolute;width:100%}.blockquote-center::before{border-top:1px solid #ccc;text-align:left;top:-20px;content:'\f10d';font-family:'Font Awesome 5 Free';font-weight:900}.blockquote-center::after{border-bottom:1px solid #ccc;bottom:-20px;text-align:right;content:'\f10e';font-family:'Font Awesome 5 Free';font-weight:900}.blockquote-center div,.blockquote-center p{text-align:center}.group-picture{margin-bottom:20px}.group-picture .group-picture-row{display:flex;gap:3px;margin-bottom:3px}.group-picture .group-picture-column{flex:1}.group-picture .group-picture-column img{height:100%;margin:0;object-fit:cover;width:100%}.post-body .label{color:#555;padding:0 2px}.post-body .label.default{background:#f0f0f0}.post-body .label.primary{background:#efe6f7}.post-body .label.info{background:#e5f2f8}.post-body .label.success{background:#e7f4e9}.post-body .label.warning{background:#fcf6e1}.post-body .label.danger{background:#fae8eb}.post-body .link-grid{display:grid;grid-gap:1.5rem 1.5rem;gap:1.5rem 1.5rem;grid-template-columns:1fr 1fr;margin-bottom:20px;padding:1rem}@media (max-width:767px){.post-body .link-grid{grid-template-columns:1fr}}.post-body .link-grid .link-grid-container{border:solid #ddd;box-shadow:1rem 1rem .5rem rgba(0,0,0,.5);min-height:5rem;min-width:0;padding:.5rem;position:relative;transition:background .3s}.post-body .link-grid .link-grid-container:hover{animation:next-shake .5s;background:var(--card-bg-color)}.post-body .link-grid .link-grid-container:active{box-shadow:.5rem .5rem .25rem rgba(0,0,0,.5);transform:translate(.2rem,.2rem)}.post-body .link-grid .link-grid-container .link-grid-image{border:1px solid #ddd;border-radius:50%;box-sizing:border-box;height:5rem;padding:3px;position:absolute;width:5rem}.post-body .link-grid .link-grid-container p{margin:0 1rem 0 6rem}.post-body .link-grid .link-grid-container p:first-of-type{font-size:1.2em}.post-body .link-grid .link-grid-container p:last-of-type{font-size:.8em;line-height:1.3rem;opacity:.7}.post-body .link-grid .link-grid-container a{border:0;height:100%;left:0;position:absolute;top:0;width:100%}.post-body .tabs{margin-bottom:20px;padding-top:10px}.post-body h1,.post-body h2,.post-body h3,.post-body h4,.post-body h5,.post-body h6{padding-top:10px}.post-body .tabs ul.nav-tabs,.tabs-comment ul.nav-tabs{display:flex;flex-wrap:wrap;justify-content:center;margin:0;padding:0}@media (max-width:413px){.post-body .tabs ul.nav-tabs,.tabs-comment ul.nav-tabs{display:block;margin-bottom:5px}}.post-body .tabs ul.nav-tabs li.tab,.tabs-comment ul.nav-tabs li.tab{border-bottom:1px solid #ddd;border-left:1px solid transparent;border-right:1px solid transparent;border-radius:0 0 0 0;border-top:3px solid transparent;flex-grow:1;list-style-type:none}@media (max-width:413px){.post-body .tabs ul.nav-tabs li.tab,.tabs-comment ul.nav-tabs li.tab{border-bottom:1px solid transparent;border-left:3px solid transparent;border-right:1px solid transparent;border-top:1px solid transparent;border-radius:0}}.post-body .tabs ul.nav-tabs li.tab a,.tabs-comment ul.nav-tabs li.tab a{border-bottom:initial;display:block;line-height:1.8;padding:.25em .75em;text-align:center;transition:all .2s ease-out}.post-body .tabs ul.nav-tabs li.tab a i,.tabs-comment ul.nav-tabs li.tab a i{width:1.285714285714286em}.post-body .tabs ul.nav-tabs li.tab.active,.tabs-comment ul.nav-tabs li.tab.active{border-color:#fc6423 #ddd transparent}@media (max-width:413px){.post-body .tabs ul.nav-tabs li.tab.active,.tabs-comment ul.nav-tabs li.tab.active{border-color:#ddd #ddd #ddd #fc6423}}.post-body .tabs ul.nav-tabs li.tab.active a,.tabs-comment ul.nav-tabs li.tab.active a{cursor:default}.post-body .tabs .tab-content,.tabs-comment .tab-content{border:1px solid #ddd;border-radius:0 0 0 0;border-top-color:transparent}@media (max-width:413px){.post-body .tabs .tab-content,.tabs-comment .tab-content{border-radius:0;border-top-color:#ddd}}.post-body .tabs .tab-content .tab-pane,.tabs-comment .tab-content .tab-pane{padding:20px 20px 0}.post-body .tabs .tab-content .tab-pane:not(.active),.tabs-comment .tab-content .tab-pane:not(.active){display:none}.post-body .note{border-radius:3px;margin-bottom:20px;padding:1em;position:relative;border:1px solid #eee;border-left-width:5px}.post-body .note summary{cursor:pointer;outline:0}.post-body .note summary p{display:inline}.post-body .note h2,.post-body .note h3,.post-body .note h4,.post-body .note h5,.post-body .note h6{border-bottom:initial;margin:0;padding-top:0}.post-body .note blockquote:first-child,.post-body .note img:first-child,.post-body .note ol:first-child,.post-body .note p:first-child,.post-body .note pre:first-child,.post-body .note table:first-child,.post-body .note ul:first-child{margin-top:0}.post-body .note blockquote:last-child,.post-body .note img:last-child,.post-body .note ol:last-child,.post-body .note p:last-child,.post-body .note pre:last-child,.post-body .note table:last-child,.post-body .note ul:last-child{margin-bottom:0}.post-body .note.default{border-left-color:#777}.post-body .note.default h2,.post-body .note.default h3,.post-body .note.default h4,.post-body .note.default h5,.post-body .note.default h6{color:#777}.post-body .note.primary{border-left-color:#6f42c1}.post-body .note.primary h2,.post-body .note.primary h3,.post-body .note.primary h4,.post-body .note.primary h5,.post-body .note.primary h6{color:#6f42c1}.post-body .note.info{border-left-color:#428bca}.post-body .note.info h2,.post-body .note.info h3,.post-body .note.info h4,.post-body .note.info h5,.post-body .note.info h6{color:#428bca}.post-body .note.success{border-left-color:#5cb85c}.post-body .note.success h2,.post-body .note.success h3,.post-body .note.success h4,.post-body .note.success h5,.post-body .note.success h6{color:#5cb85c}.post-body .note.warning{border-left-color:#f0ad4e}.post-body .note.warning h2,.post-body .note.warning h3,.post-body .note.warning h4,.post-body .note.warning h5,.post-body .note.warning h6{color:#f0ad4e}.post-body .note.danger{border-left-color:#d9534f}.post-body .note.danger h2,.post-body .note.danger h3,.post-body .note.danger h4,.post-body .note.danger h5,.post-body .note.danger h6{color:#d9534f}.mermaid{margin-bottom:20px;text-align:center}.pagination .next,.pagination .page-number,.pagination .prev{display:inline-block;margin:-1px 10px 0;padding:0 10px}.pagination .space{display:inline-block}@media (max-width:767px){.pagination .next,.pagination .page-number,.pagination .prev,.pagination .space{margin:0 5px}}.pagination{border-top:1px solid #eee;margin:120px 0 0}.pagination .next,.pagination .page-number,.pagination .prev{border-bottom:0;border-top:1px solid #eee;transition:border-color .2s ease-in-out}.pagination .next:hover,.pagination .page-number:hover,.pagination .prev:hover{border-top-color:var(--link-hover-color)}@media (max-width:767px){.pagination{border-top:0}.pagination .next,.pagination .page-number,.pagination .prev{border-bottom:1px solid #eee;border-top:0}.pagination .next:hover,.pagination .page-number:hover,.pagination .prev:hover{border-bottom-color:var(--link-hover-color)}}.pagination .space{margin:0;padding:0}.pagination .page-number.current{background:#ccc;border-color:#ccc;color:var(--content-bg-color)}.comments{margin-top:60px;overflow:hidden}.comment-button-group{display:flex;flex-wrap:wrap;justify-content:center;margin:1em 0}.comment-button-group .comment-button{margin:.1em .2em}.comment-button-group .comment-button.active{background:var(--btn-default-hover-bg);border-color:var(--btn-default-hover-border-color);color:var(--btn-default-hover-color)}.comment-position{display:none}.comment-position.active,.menu-item a{display:block}.tabs-comment{margin-top:4em;padding-top:0}.tabs-comment .comments{margin-top:0;padding-top:0}.headband{background:#222;height:3px}@media (max-width:991px){.headband{display:none}}.header{background:var(--content-bg-color)}.header-inner{margin:0 auto;width:700px}@media (min-width:1200px){.header-inner{width:800px}}@media (min-width:1600px){.header-inner{width:900px}}.site-brand-container{display:flex;flex-shrink:0;padding:0 10px}.use-motion .header,.use-motion .site-brand-container .toggle{opacity:0}.site-meta{flex-grow:1;text-align:center}@media (max-width:767px){.site-meta{text-align:center}}.custom-logo-image{margin-top:20px}@media (max-width:991px){.custom-logo-image{display:none}}.brand{border-bottom:0;color:var(--brand-color);display:inline-block;padding:0 40px}.brand:hover{color:var(--brand-hover-color)}.site-title{font-family:Lato,'PingFang SC','Microsoft YaHei',sans-serif;font-size:1.375em;font-weight:400;margin:0}.site-subtitle{color:#999;font-size:.8125em;margin:10px 0}.use-motion .custom-logo-image,.use-motion .site-subtitle,.use-motion .site-title{opacity:0;position:relative;top:-10px}.site-nav-right,.site-nav-toggle{display:none}@media (max-width:767px){.site-nav-right,.site-nav-toggle{display:flex;flex-direction:column;justify-content:center}}.site-nav-right .toggle,.site-nav-toggle .toggle{color:var(--text-color);padding:10px;width:22px}.site-nav-right .toggle .toggle-line,.site-nav-toggle .toggle .toggle-line{background:var(--text-color);border-radius:1px}@media (max-width:767px){.site-nav{--scroll-height:0;height:0;overflow:hidden;transition:height .2s ease-in-out}body:not(.site-nav-on) .site-nav .animated{animation:none}body.site-nav-on .site-nav{height:var(--scroll-height)}}.menu{margin:0;text-align:center}.menu-item{display:inline-block;list-style:none;margin:0 10px}@media (max-width:767px){.menu-item{display:block;margin-top:10px}.menu-item.menu-item-search{display:none}}.menu-item a{border-bottom:0;font-size:.8125em;transition:border-color .2s ease-in-out}.menu-item a.menu-item-active,.menu-item a:hover{background:var(--menu-item-bg-color)}.menu-item .fa,.menu-item .fab,.menu-item .far,.menu-item .fas{margin-right:8px}.menu-item .badge{display:inline-block;font-weight:700;line-height:1;margin-left:.35em;margin-top:.35em;text-align:center;white-space:nowrap}@media (max-width:767px){.menu-item .badge{float:right;margin-left:0}}.use-motion .menu-item{visibility:hidden}.github-corner :hover .octo-arm{animation:octocat-wave 560ms ease-in-out}.github-corner svg{color:#fff;fill:#222;position:absolute;right:0;top:0;z-index:1000}@media (max-width:991px){.github-corner{display:none}.github-corner .github-corner:hover .octo-arm{animation:none}.github-corner .github-corner .octo-arm{animation:octocat-wave 560ms ease-in-out}}@media (max-width:767px){.github-corner svg{top:inherit}}.sidebar-inner{color:#999;padding:18px 10px;text-align:center}.site-overview-item:not(:first-child){margin-top:10px}.cc-license .cc-opacity{border-bottom:0;opacity:.7}.cc-license .cc-opacity:hover{opacity:.9}.cc-license img,.post-reward div{display:inline-block}.site-author-image{border:2px solid #333;max-width:96px;padding:2px}.site-author-name{color:#f5f5f5;font-weight:400;margin:5px 0 0}.site-description{color:#999;font-size:1em;margin-top:5px}.links-of-author a,.links-of-blogroll{font-size:.8125em}.links-of-author .fa,.links-of-author .fab,.links-of-author .far,.links-of-author .fas{margin-right:2px}.sidebar .sidebar-button:not(:first-child){margin-top:15px}.sidebar .sidebar-button a{border:1px solid #fc6423;border-radius:4px;color:#fc6423;display:inline-block;padding:0 15px}.sidebar .sidebar-button a .fa,.sidebar .sidebar-button a .fab,.sidebar .sidebar-button a .far,.sidebar .sidebar-button a .fas{margin-right:5px}.sidebar .sidebar-button a:hover{background:#fc6423;border:1px solid #fc6423;color:#fff}.sidebar .sidebar-button a:hover .fa,.sidebar .sidebar-button a:hover .fab,.sidebar .sidebar-button a:hover .far,.sidebar .sidebar-button a:hover .fas{color:#fff}.links-of-blogroll-title{font-size:.875em;font-weight:600;margin-top:0}.links-of-blogroll-list{list-style:none;margin:0;padding:0}.sidebar-dimmer{display:none}@media (max-width:991px){.sidebar-dimmer{background:#000;display:block;height:100%;left:0;opacity:0;position:fixed;top:0;transition:visibility .4s,opacity .4s;visibility:hidden;width:100%;z-index:1100}.sidebar-active .sidebar-dimmer{opacity:.7;visibility:visible}}.sidebar-nav{display:none;margin:0;padding-bottom:20px;padding-left:0}.sidebar-nav-active .sidebar-nav{display:block}.sidebar-nav li{border-bottom:1px solid transparent;color:#666;cursor:pointer;display:inline-block;font-size:.875em}.sidebar-nav li.sidebar-nav-overview{margin-left:10px}.sidebar-nav li:hover{color:#f5f5f5}.post-toc .nav .active>a,.sidebar-overview-active .sidebar-nav-overview,.sidebar-toc-active .sidebar-nav-toc{border-bottom-color:#87daff;color:#87daff}.post-toc .nav .active-current>a,.post-toc .nav .active-current>a:hover,.sidebar-overview-active .sidebar-nav-overview:hover,.sidebar-toc-active .sidebar-nav-toc:hover{color:#87daff}.sidebar-panel-container{max-height:var(--sidebar-wrapper-height);overflow-x:hidden;overflow-y:auto}.sidebar-panel{display:none}.sidebar-overview-active .site-overview-wrap{display:flex;flex-direction:column;justify-content:center}.sidebar-toc-active .post-toc-wrap{display:block}.sidebar-toggle{bottom:45px;height:12px;padding:6px 5px;width:14px;background:#222;cursor:pointer;opacity:.8;position:fixed;z-index:1300;left:30px}@media (max-width:991px){.sidebar-toggle{left:20px}}.sidebar-toggle:hover{opacity:1}@media (max-width:991px){.sidebar-toggle{opacity:1}}.sidebar-toggle:hover .toggle-line{background:#87daff}@media (any-hover:hover){body:not(.sidebar-active) .sidebar-toggle:hover .toggle-line:first-child{left:50%;top:2px;transform:rotate(45deg);width:50%}body:not(.sidebar-active) .sidebar-toggle:hover .toggle-line:last-child{left:50%;top:-2px;transform:rotate(-45deg);width:50%}}.sidebar-active .sidebar-toggle .toggle-line:nth-child(2){opacity:0}.sidebar-active .sidebar-toggle .toggle-line:first-child{top:5px;transform:rotate(45deg)}.sidebar-active .sidebar-toggle .toggle-line:last-child{top:-5px;transform:rotate(-45deg)}.post-toc{font-size:.875em}.post-toc ol{list-style:none;margin:0;padding:0 2px 5px 10px;text-align:left}.post-toc ol>ol{padding-left:0}.post-toc ol a{transition:all .2s ease-in-out}.post-toc .nav-item{line-height:1.8;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.back-to-top span,.post-toc .nav .nav-child{display:none}.post-toc .nav .active-current>.nav-child,.post-toc .nav .active-current>.nav-child>.nav-item,.post-toc .nav .active>.nav-child{display:block}.site-state{display:flex;flex-wrap:wrap;justify-content:center;line-height:1.4}.site-state-item{padding:0 15px}.site-state-item a{border-bottom:0;display:block}.site-state-item-count{display:block;font-size:1.25em;font-weight:600}.footer,.site-state-item-name{color:inherit;font-size:.875em}.footer{color:#999}.footer.footer-fixed{bottom:0;left:0;position:absolute;right:0}.footer-inner{box-sizing:border-box;display:flex;flex-direction:column;justify-content:center;margin:0 auto;width:700px}@media (min-width:1200px){.footer-inner{width:800px}}@media (min-width:1600px){.footer-inner{width:900px}}.use-motion .footer{opacity:0}.languages{display:inline-block;font-size:1.125em;position:relative}.languages .lang-select-label span{margin:0 .5em}.languages .lang-select{height:100%;left:0;opacity:0;position:absolute;top:0;width:100%}.with-love{color:gray;display:inline-block;margin:0 5px}.back-to-top{font-size:12px;bottom:-100px;box-sizing:border-box;color:#fff;padding:0 6px;transition:bottom .2s ease-in-out;background:#222;cursor:pointer;opacity:.8;position:fixed;z-index:1300;left:30px;width:24px}@media (max-width:991px){.back-to-top{left:20px}}.back-to-top:hover{opacity:1;color:#87daff}@media (max-width:991px){.back-to-top{opacity:1}}.back-to-top.back-to-top-on{bottom:19px}.noscript-warning{background-color:#f55;color:#fff;font-family:sans-serif;font-size:1rem;font-weight:700;left:0;position:fixed;text-align:center;top:0;width:100%;z-index:1500}.rtl.post-body a,.rtl.post-body h1,.rtl.post-body h2,.rtl.post-body h3,.rtl.post-body h4,.rtl.post-body h5,.rtl.post-body h6,.rtl.post-body li,.rtl.post-body ol,.rtl.post-body p,.rtl.post-body ul{direction:rtl;font-family:UKIJ Ekran}.rtl.post-title{font-family:UKIJ Ekran}.use-motion .collection-header,.use-motion .comments,.use-motion .pagination,.use-motion .post-block,.use-motion .post-body,.use-motion .post-header{visibility:hidden}.posts-collapse .post-content{margin-bottom:35px;margin-left:35px;position:relative}@media (max-width:767px){.posts-collapse .post-content{margin-left:0;margin-right:0}}.posts-collapse .post-content .collection-title{font-size:1.125em;position:relative}.posts-collapse .post-content .collection-title::before{background:#999;border:1px solid #fff;margin-left:-6px;margin-top:-4px;position:absolute;top:50%;border-radius:50%;content:' ';height:10px;width:10px}.posts-collapse .post-content .collection-year{font-size:1.5em;font-weight:700;margin:60px 0;position:relative}.posts-collapse .post-content .collection-year::before{background:#bbb;margin-left:-4px;margin-top:-4px;position:absolute;top:50%;border-radius:50%;content:' ';height:8px;width:8px}.posts-collapse .post-content .collection-header{display:block;margin-left:20px}.posts-collapse .post-content .collection-header small{color:#bbb;margin-left:5px}.posts-collapse .post-content .post-header{border-bottom:1px dashed #ccc;margin:30px 2px 0;padding-left:15px;position:relative;transition:border .2s ease-in-out}.posts-collapse .post-content .post-header::before{background:#bbb;border:1px solid #fff;left:-6px;position:absolute;top:.75em;transition:background .2s ease-in-out;border-radius:50%;content:' ';height:6px;width:6px}.posts-collapse .post-content .post-header:hover{border-bottom-color:#666}.posts-collapse .post-content .post-header:hover::before{background:#222}.posts-collapse .post-content .post-meta-container{display:inline;font-size:.75em;margin-right:10px}.posts-collapse .post-content .post-title,ul.breadcrumb li{display:inline}.posts-collapse .post-content .post-title a{border-bottom:0;color:var(--link-color)}.posts-collapse .post-content .post-title .fa-external-link-alt{font-size:.875em;margin-left:5px}.posts-collapse .post-content::before{background:#f5f5f5;content:' ';height:100%;margin-left:-2px;position:absolute;top:1.25em;width:4px}.post-body{font-family:Lato,'PingFang SC','Microsoft YaHei',sans-serif;overflow-wrap:break-word}@media (min-width:1200px){.post-body{font-size:1.125em}}@media (min-width:992px){.post-body{text-align:justify}}@media (max-width:991px){.post-body{text-align:justify}}.post-body h1 .header-anchor,.post-body h1 .headerlink,.post-body h2 .header-anchor,.post-body h2 .headerlink,.post-body h3 .header-anchor,.post-body h3 .headerlink,.post-body h4 .header-anchor,.post-body h4 .headerlink,.post-body h5 .header-anchor,.post-body h5 .headerlink,.post-body h6 .header-anchor,.post-body h6 .headerlink{border-bottom-style:none;color:inherit;float:right;font-size:.875em;margin-left:10px;opacity:0}.post-body h1 .header-anchor::before,.post-body h1 .headerlink::before,.post-body h2 .header-anchor::before,.post-body h2 .headerlink::before,.post-body h3 .header-anchor::before,.post-body h3 .headerlink::before,.post-body h4 .header-anchor::before,.post-body h4 .headerlink::before,.post-body h5 .header-anchor::before,.post-body h5 .headerlink::before,.post-body h6 .header-anchor::before,.post-body h6 .headerlink::before{content:'\f0c1';font-family:'Font Awesome 5 Free';font-weight:900}.post-body h1:hover .header-anchor,.post-body h1:hover .headerlink,.post-body h2:hover .header-anchor,.post-body h2:hover .headerlink,.post-body h3:hover .header-anchor,.post-body h3:hover .headerlink,.post-body h4:hover .header-anchor,.post-body h4:hover .headerlink,.post-body h5:hover .header-anchor,.post-body h5:hover .headerlink,.post-body h6:hover .header-anchor,.post-body h6:hover .headerlink{opacity:.5}.post-body h1:hover .header-anchor:hover,.post-body h1:hover .headerlink:hover,.post-body h2:hover .header-anchor:hover,.post-body h2:hover .headerlink:hover,.post-body h3:hover .header-anchor:hover,.post-body h3:hover .headerlink:hover,.post-body h4:hover .header-anchor:hover,.post-body h4:hover .headerlink:hover,.post-body h5:hover .header-anchor:hover,.post-body h5:hover .headerlink:hover,.post-body h6:hover .header-anchor:hover,.post-body h6:hover .headerlink:hover{opacity:1}.post-body .exturl .fa{font-size:.875em;margin-left:4px}.post-body .figure .caption,.post-body .image-caption{color:#999;font-size:.875em;font-weight:700;line-height:1;margin:-20px auto 15px;text-align:center}.post-body embed,.post-body iframe,.post-body img,.post-body video{margin-bottom:20px}.post-body .video-container{height:0;margin-bottom:20px;overflow:hidden;padding-top:75%;position:relative;width:100%}.post-body .video-container embed,.post-body .video-container iframe,.post-body .video-container object{height:100%;left:0;margin:0;position:absolute;top:0;width:100%}.post-gallery{display:flex;min-height:200px}.post-gallery .post-gallery-image{flex:1}.post-gallery .post-gallery-image:not(:first-child){clip-path:polygon(40px 0,100% 0,100% 100%,0 100%);margin-left:-20px}.post-gallery .post-gallery-image:not(:last-child){margin-right:-20px}.post-gallery .post-gallery-image img{height:100%;object-fit:cover;opacity:1;width:100%}.posts-expand .post-gallery{margin-bottom:60px}.posts-collapse .post-gallery{margin:15px 0}.posts-expand .post-header{font-size:1.125em;text-align:center}.posts-expand .post-title{font-size:1.5em;font-weight:400;margin:initial;overflow-wrap:break-word}.posts-expand .post-title-link{border-bottom:0;color:var(--link-color);display:inline-block;position:relative}.posts-expand .post-title-link::before{background:var(--link-color);bottom:0;content:'';height:2px;left:0;position:absolute;transform:scaleX(0);transition:transform .2s ease-in-out;width:100%}.posts-expand .post-title-link:hover::before{transform:scaleX(1)}.posts-expand .post-title-link .fa-external-link-alt{font-size:.875em;margin-left:5px}.post-sticky-flag{display:inline-block;margin-right:8px;transform:rotate(30deg)}.posts-expand .post-meta-container{color:#999;font-family:Lato,'PingFang SC','Microsoft YaHei',sans-serif;font-size:.75em;margin-top:3px}.posts-expand .post-meta-container .post-description{font-size:.875em;margin-top:2px}.posts-expand .post-meta-container time{border-bottom:1px dashed #999;cursor:pointer}.post-meta{display:flex;flex-wrap:wrap;justify-content:center}.post-meta-item:not(:first-child)::before{content:'|';margin:0 .5em}.post-meta-item-icon{margin-right:3px}@media (max-width:991px){.post-meta-item-text{display:none}}.post-nav{border-top:1px solid #eee;display:flex;gap:30px;justify-content:space-between;margin-top:1em;padding:10px 5px 0}.post-nav-item{flex:1}.post-nav-item a{border-bottom:0;display:block;font-size:.875em;line-height:1.6}.post-nav-item a:active{top:2px}.post-nav-item .fa{font-size:.75em}.post-nav-item:first-child .fa{margin-right:5px}.post-nav-item:last-child{text-align:right}.post-nav-item:last-child .fa{margin-left:5px}.post-footer{display:flex;flex-direction:column;justify-content:center}.post-eof{background:#ccc;height:1px;margin:80px auto 60px;width:8%}.post-block:last-of-type .post-eof{display:none}.post-tags{margin-top:40px;text-align:center}.post-tags a{display:inline-block;font-size:.8125em}.post-tags a:not(:last-child){margin-right:10px}.post-widgets{border-top:1px solid #eee;margin-top:15px;text-align:center}.wp_rating{height:20px;line-height:20px;margin-top:10px;padding-top:6px;text-align:center}.social-like{display:flex;font-size:.875em;justify-content:center;text-align:center}.reward-container{margin:1em 0 0;padding:1em 0;text-align:center}.reward-container button{background:0 0;border:2px solid #87daff;border-radius:2px;color:#87daff;cursor:pointer;line-height:2;outline:0;padding:0 15px;transition:all .2s ease-in-out;vertical-align:text-top}.reward-container button:hover{background:#87daff;border:2px solid transparent;color:#fff}.post-reward{display:none;padding-top:20px}.post-reward div span,.post-reward.active{display:block}.post-reward img{display:inline-block;margin:.8em 2em 0;max-width:100%;width:180px}.category-all-page .category-all-title,.tag-cloud{text-align:center}.category-all-page .category-all{margin-top:20px}.category-all-page .category-list{list-style:none;margin:0;padding:0}.category-all-page .category-list-item{margin:5px 10px}.category-all-page .category-list-count{color:#bbb}.category-all-page .category-list-count::before{content:' ('}.category-all-page .category-list-count::after{content:') '}.category-all-page .category-list-child{padding-left:10px}.event-list hr{background:#222;margin:20px 0 45px}.event-list hr::after{background:#222;color:#fff;content:'NOW';display:inline-block;font-weight:700;padding:0 5px}.event-list .event{--event-background:#222;--event-foreground:#bbb;--event-title:#fff;background:var(--event-background);padding:15px}.event-list .event .event-summary{border-bottom:0;color:var(--event-title);margin:0;padding:0 0 0 35px;position:relative}.event-list .event .event-summary::before{animation:dot-flash 1s alternate infinite ease-in-out;background:var(--event-title);left:0;margin-top:-6px;position:absolute;top:50%;border-radius:50%;content:' ';height:12px;width:12px}.event-list .event:nth-of-type(odd) .event-summary::before{animation-delay:.5s}.event-list .event:not(:last-child){margin-bottom:20px}.event-list .event .event-relative-time{color:var(--event-foreground);display:inline-block;font-size:12px;font-weight:400;padding-left:12px}.event-list .event .event-details{color:var(--event-foreground);display:block;line-height:18px;padding:6px 0 6px 35px}.event-list .event .event-details::before{color:var(--event-foreground);display:inline-block;margin-right:9px;width:14px;font-family:'Font Awesome 5 Free';font-weight:900}.event-list .event .event-details.event-location::before{content:'\f041'}.event-list .event .event-details.event-duration::before{content:'\f017'}.event-list .event .event-details.event-description::before{content:'\f024'}.event-list .event-past{--event-background:#f5f5f5;--event-foreground:#999;--event-title:#222}ul.breadcrumb{font-size:.75em;list-style:none;margin:1em 0;padding:0 2em;text-align:center}ul.breadcrumb li:not(:first-child)::before{content:'/\00a0';font-weight:400;padding:.5em}ul.breadcrumb li:last-child{font-weight:700}.tag-cloud a{display:inline-block;margin:10px}.tag-cloud-0{border-bottom-color:#aaa;color:#aaa}.tag-cloud-1{border-bottom-color:#9a9a9a;color:#9a9a9a}.tag-cloud-2{border-bottom-color:#8b8b8b;color:#8b8b8b}.tag-cloud-3{border-bottom-color:#7c7c7c;color:#7c7c7c}.tag-cloud-4{border-bottom-color:#6c6c6c;color:#6c6c6c}.tag-cloud-5{border-bottom-color:#5d5d5d;color:#5d5d5d}.tag-cloud-6{border-bottom-color:#4e4e4e;color:#4e4e4e}.tag-cloud-7{border-bottom-color:#3e3e3e;color:#3e3e3e}.tag-cloud-8{border-bottom-color:#2f2f2f;color:#2f2f2f}.tag-cloud-9{border-bottom-color:#202020;color:#202020}.tag-cloud-10{border-bottom-color:#111;color:#111}@media (prefers-color-scheme:dark){.tag-cloud-0{border-bottom-color:#555;color:#555}.tag-cloud-1{border-bottom-color:#646464;color:#646464}.tag-cloud-2{border-bottom-color:#737373;color:#737373}.tag-cloud-3{border-bottom-color:#828282;color:#828282}.tag-cloud-4{border-bottom-color:#929292;color:#929292}.tag-cloud-5{border-bottom-color:#a1a1a1;color:#a1a1a1}.tag-cloud-6{border-bottom-color:#b0b0b0;color:#b0b0b0}.tag-cloud-7{border-bottom-color:silver;color:silver}.tag-cloud-8{border-bottom-color:#cfcfcf;color:#cfcfcf}.tag-cloud-9{border-bottom-color:#dedede;color:#dedede}.tag-cloud-10{border-bottom-color:#eee;color:#eee}}.search-active{overflow:hidden}.search-pop-overlay{background:0 0;display:flex;height:100%;left:0;position:fixed;top:0;transition:visibility .4s,background .4s;visibility:hidden;width:100%;z-index:1400}.search-active .search-pop-overlay{background:rgba(0,0,0,.3);visibility:visible}.search-popup{background:var(--card-bg-color);border-radius:5px;height:80%;margin:auto;transform:scale(0);transition:transform .4s;width:700px}.search-active .search-popup{transform:scale(1)}@media (max-width:767px){.search-popup{border-radius:0;height:100%;width:100%}}.search-popup .popup-btn-close,.search-popup .search-icon{color:#999;font-size:18px;padding:0 10px}.search-popup .popup-btn-close{cursor:pointer}.search-popup .popup-btn-close:hover .fa{color:#222}.search-popup .search-header{background:#eee;border-top-left-radius:5px;border-top-right-radius:5px;display:flex;padding:5px}.search-popup input.search-input{background:0 0;border:0;outline:0;width:100%}.search-popup input.search-input::-webkit-search-cancel-button{display:none}.search-popup .search-result-container{height:calc(100% - 55px);overflow:auto;padding:5px 25px}.search-popup .search-result-container hr{margin:5px 0 10px}.search-popup .search-result-container hr:first-child{display:none}.search-popup .search-result-list{margin:0 5px;padding:0}.search-popup a.search-result-title{font-weight:700}.search-popup p.search-result{border-bottom:1px dashed #ccc;padding:5px 0}.search-popup .search-input-container{flex-grow:1;padding:2px}.search-popup .no-result{display:flex}.search-popup .search-result-list{width:100%}.search-popup .search-result-icon{color:#ccc;margin:auto}mark.search-keyword{background:0 0;border-bottom:1px dashed #ff2a2a;color:#ff2a2a;font-weight:700}.use-motion .animated{animation-fill-mode:none;visibility:inherit}.use-motion .sidebar .animated{animation-fill-mode:both}.btn{padding:0 10px}.headband{display:none}.pagination{text-align:left}@media (max-width:767px){.pagination{margin:80px 0 0;text-align:center}}.footer{background:var(--content-bg-color);color:var(--text-color);padding:10px 0}.footer-inner{text-align:left}@media (max-width:767px){.footer-inner{text-align:center}}.header-inner{align-items:center;display:flex;padding:20px 0}@media (max-width:767px){.header-inner{display:block;padding:10px 0}}.site-meta{line-height:normal}.site-meta .brand{padding:2px 1px}@media (max-width:767px){.site-meta .brand{display:block}}.site-meta .site-title{font-weight:bolder}.logo-line{background:var(--brand-color);display:block;height:2px;margin:0 auto;width:75%}@media (max-width:767px){.logo-line{display:none}}.use-motion .logo-line:first-of-type{transform:scaleX(0);transform-origin:left}.use-motion .logo-line:last-of-type{transform:scaleX(0);transform-origin:right}.site-subtitle{display:none}.site-nav{flex-grow:1}@media (max-width:767px){.site-nav{padding:10px 10px 0}}.menu{padding:0}.menu .menu-item{margin:0}@media (max-width:767px){.menu .menu-item{margin-top:5px}}.menu .menu-item a{border-radius:2px;padding:0 10px;transition-property:background}@media (max-width:767px){.menu .menu-item a{text-align:left}}.menu .menu-item .badge{background:#fff;border-radius:10px;color:#555;padding:1px 4px;text-shadow:1px 1px 0 rgba(0,0,0,.1)}.posts-expand.index .post-header{text-align:left}@media (max-width:767px){.posts-expand.index .post-header{text-align:center}}.posts-expand.index .post-meta-container{margin-top:5px}.posts-expand.index .post-meta{justify-content:flex-start}@media (max-width:767px){.posts-expand.index .post-meta{justify-content:center}}.posts-expand .post-eof{display:none}.posts-expand .post-block:not(:first-child){margin-top:120px}.posts-expand .post-header{margin-bottom:20px}.post-button,.posts-expand .post-tags{text-align:left}.posts-expand .post-tags a{background:var(--content-bg-color);border-bottom:0;padding:1px 5px}.posts-expand .post-tags a:hover{background:var(--menu-item-bg-color)}.posts-expand .post-nav{margin-top:40px}.post-button{margin-top:20px}.post-button .btn{background:0 0;border:0;border-bottom:2px solid var(--btn-default-border-color);padding:0;transition-property:border}.post-button .btn:hover{border-bottom-color:var(--btn-default-hover-border-color)}.main-inner{margin:0 auto;width:700px}@media (min-width:1200px){.main-inner{width:800px}}@media (min-width:1600px){.main-inner{width:900px}}@media (max-width:767px){.main-inner{padding-left:20px;padding-right:20px}.footer-inner,.header-inner,.main-inner{width:auto}}.main-inner{padding-bottom:80px}.post-block:first-of-type{padding-top:80px}@media (max-width:767px){.post-block:first-of-type{padding-top:60px}}@media (min-width:992px){.sidebar-active{padding-left:320px}}.sidebar{left:-320px;background:#222;bottom:0;box-shadow:inset 0 2px 6px #000;position:fixed;top:0;transition:all .2s ease-out;width:320px;z-index:1200}.sidebar-active .sidebar{left:0}.sidebar a{border-bottom-color:#555;color:#999}.sidebar a:hover{border-bottom-color:#eee;color:#eee}.links-of-author:not(:first-child){margin-top:15px}.links-of-author a{border-bottom-color:#555;display:inline-block;margin-bottom:10px;margin-right:10px;vertical-align:middle}.links-of-author a::before{background:#3308ff;display:inline-block;margin-right:3px;transform:translateY(-2px);border-radius:50%;content:' ';height:4px;width:4px}.links-of-blogroll-item{padding:2px 10px}.links-of-blogroll-item a{box-sizing:border-box;display:inline-block;max-width:280px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.sub-menu{margin:10px 0}.sub-menu .menu-item{display:inline-block}</style><noscript>
+    
+  </noscript>
+<script>function loadCss(l){var d=document,h=d.head,s=d.createElement('link');s.rel='stylesheet';s.href=l;!function e(f){if (d.body)return f();setTimeout(function(){e(f)})}(function(){h.appendChild(s);});}loadCss('/style.css');loadCss('https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@5.15.3/css/all.min.css');</script><noscript><link rel="stylesheet" href="/style.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@5.15.3/css/all.min.css"></noscript></head>
+
+<body itemscope="" itemtype="http://schema.org/WebPage">
+  <div class="headband"></div>
+
+  <main class="main">
+    <header class="header" itemscope="" itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏" role="button">
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <i class="logo-line"></i>
+      <h1 class="site-title">疯狂的茶几</h1>
+      <i class="logo-line"></i>
+    </a>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  <ul class="main-menu menu">
+        <li class="menu-item menu-item-home"><a href="/" rel="section"><i class="home fa-fw"></i>首页</a></li>
+        <li class="menu-item menu-item-about"><a href="/about/" rel="section"><i class="user fa-fw"></i>关于</a></li>
+        <li class="menu-item menu-item-tags"><a href="/tags/" rel="section"><i class="tags fa-fw"></i>标签</a></li>
+        <li class="menu-item menu-item-categories"><a href="/categories/" rel="section"><i class="th fa-fw"></i>分类</a></li>
+        <li class="menu-item menu-item-archives"><a href="/archives/" rel="section"><i class="archive fa-fw"></i>归档</a></li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>搜索
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup"><div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocapitalize="off" maxlength="80" placeholder="搜索..." spellcheck="false" type="search" class="search-input">
+  </div>
+  <span class="popup-btn-close" role="button">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div class="search-result-container no-result">
+  <div class="search-result-icon">
+    <i class="fa fa-spinner fa-pulse fa-5x"></i>
+  </div>
+</div>
+
+    </div>
+  </div>
+
+</div>
+        
+  
+  <div class="toggle sidebar-toggle" role="button">
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+  </div>
+
+  <aside class="sidebar">
+
+    <div class="sidebar-inner sidebar-overview-active">
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <div class="sidebar-panel-container">
+        <!--noindex-->
+        <div class="post-toc-wrap sidebar-panel">
+        </div>
+        <!--/noindex-->
+
+        <div class="site-overview-wrap sidebar-panel">
+          <div class="site-author site-overview-item animated" itemprop="author" itemscope="" itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="疯狂的茶几" src="/uploads/avatar.jpg">
+  <p class="site-author-name" itemprop="name">疯狂的茶几</p>
+  <div class="site-description" itemprop="description">懒人一个</div>
+</div>
+<div class="site-state-wrap site-overview-item animated">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">51</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+          
+        <span class="site-state-item-count">50</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">43</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author site-overview-item animated">
+      <span class="links-of-author-item">
+        <a href="https://github.com/tomhjx" title="GitHub → https://github.com/tomhjx" rel="noopener" target="_blank"><i class="github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="mailto:tom_hejiaxi@163.com" title="E-Mail → mailto:tom_hejiaxi@163.com" rel="noopener" target="_blank"><i class="envelope fa-fw"></i>E-Mail</a>
+      </span>
+  </div>
+
+
+
+        </div>
+      </div>
+    </div>
+  </aside>
+  <div class="sidebar-dimmer"></div>
+
+
+    </header>
+
+    
+  <div class="back-to-top" role="button" aria-label="返回顶部">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+  <a href="https://github.com/tomhjx" class="github-corner" title="Follow me on GitHub" aria-label="Follow me on GitHub" rel="noopener" target="_blank"><svg width="80" height="80" viewBox="0 0 250 250" aria-hidden="true"><path d="M0,0 L115,115 L130,115 L142,142 L250,250 L250,0 Z"></path><path d="M128.3,109.0 C113.8,99.7 119.0,89.6 119.0,89.6 C122.0,82.7 120.5,78.6 120.5,78.6 C119.2,72.0 123.4,76.3 123.4,76.3 C127.3,80.9 125.5,87.3 125.5,87.3 C122.9,97.6 130.6,101.9 134.4,103.2" fill="currentColor" style="transform-origin: 130px 106px;" class="octo-arm"></path><path d="M115.0,115.0 C114.9,115.1 118.7,116.5 119.8,115.4 L133.7,101.6 C136.9,99.2 139.9,98.4 142.2,98.6 C133.8,88.0 127.5,74.4 143.8,58.0 C148.5,53.4 154.0,51.2 159.7,51.0 C160.3,49.4 163.2,43.6 171.4,40.1 C171.4,40.1 176.1,42.5 178.8,56.2 C183.1,58.6 187.2,61.8 190.9,65.4 C194.5,69.0 197.7,73.2 200.1,77.6 C213.8,80.2 216.3,84.9 216.3,84.9 C212.7,93.1 206.9,96.0 205.4,96.6 C205.1,102.4 203.0,107.8 198.3,112.5 C181.9,128.9 168.3,122.5 157.7,114.1 C157.9,116.9 156.7,120.9 152.7,124.9 L141.0,136.5 C139.8,137.7 141.6,141.9 141.8,141.8 Z" fill="currentColor" class="octo-body"></path></svg></a>
+
+<noscript>
+  <div class="noscript-warning">Theme NexT works best with JavaScript enabled</div>
+</noscript>
+
+
+    <div class="main-inner post posts-expand">
+
+
+  
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope="" itemtype="http://schema.org/Article" class="post-content" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://www.tomhjx.top/2016/01/03/mySQL%E6%9F%A5%E8%AF%A2%E4%BC%98%E5%8C%96/">
+
+    <span hidden="" itemprop="author" itemscope="" itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/uploads/avatar.jpg">
+      <meta itemprop="name" content="疯狂的茶几">
+      <meta itemprop="description" content="懒人一个">
+    </span>
+
+    <span hidden="" itemprop="publisher" itemscope="" itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="疯狂的茶几">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          mySQL查询优化
+        </h1>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">发表于</span>
+
+      <time title="创建时间：2016-01-03 17:35:28" itemprop="dateCreated datePublished" datetime="2016-01-03T17:35:28+08:00">2016-01-03</time>
+    </span>
+      <span class="post-meta-item">
+        <span class="post-meta-item-icon">
+          <i class="far fa-calendar-check"></i>
+        </span>
+        <span class="post-meta-item-text">更新于</span>
+        <time title="修改时间：2021-07-17 18:27:26" itemprop="dateModified" datetime="2021-07-17T18:27:26+08:00">2021-07-17</time>
+      </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-folder"></i>
+      </span>
+      <span class="post-meta-item-text">分类于</span>
+        <span itemprop="about" itemscope="" itemtype="http://schema.org/Thing">
+          <a href="/categories/%E6%95%B0%E6%8D%AE%E5%BA%93/" itemprop="url" rel="index"><span itemprop="name">数据库</span></a>
+        </span>
+          ，
+        <span itemprop="about" itemscope="" itemtype="http://schema.org/Thing">
+          <a href="/categories/%E6%95%B0%E6%8D%AE%E5%BA%93/MySQL/" itemprop="url" rel="index"><span itemprop="name">MySQL</span></a>
+        </span>
+    </span>
+
+  
+    <span class="post-meta-item" title="本文字数">
+      <span class="post-meta-item-icon">
+        <i class="far fa-file-word"></i>
+      </span>
+      <span class="post-meta-item-text">本文字数：</span>
+      <span>9.7k</span>
+    </span>
+    <span class="post-meta-item" title="阅读时长">
+      <span class="post-meta-item-icon">
+        <i class="far fa-clock"></i>
+      </span>
+      <span class="post-meta-item-text">阅读时长 ≈</span>
+      <span>9 分钟</span>
+    </span>
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+        <p>糟糕的SQL查询语句可对整个应用程序的运行产生严重的影响，其不仅消耗掉更多的数据库时间，且它将对其他应用组件产生影响。</p>
+<p>　　如同其它学科，优化查询性能很大程度上决定于开发者的直觉。幸运的是，像MySQL这样的数据库自带有一些协助工具。本文简要讨论诸多工具之三种：使用索引，使用EXPLAIN分析查询以及调整MySQL的内部配置。</p>
+<p>　　一、使用索引<br>　<br>　　MySQL允许对数据库表进行索引，以此能迅速查找记录，而无需一开始就扫描整个表，由此显著地加快查询速度。每个表最多可以做到16个索引，此外MySQL还支持多列索引及全文检索。</p>
+<p>　　给表添加一个索引非常简单，只需调用一个CREATE INDEX命令并为索引指定它的域即可。列表A给出了一个例子：</p>
+<p>mysql&gt; CREATE INDEX idx_username ON users(username);<br>Query OK， 1 row affected (0.15 sec)<br>Records: 1  Duplicates: 0  Warnings: 0</p>
+<p>　　列表 A</p>
+<p>　　这里，对users表的username域做索引，以确保在WHERE或者HAVING子句中引用这一域的SELECT查询语句运行速度比没有添加索引时要快。通过SHOW INDEX命令可以查看索引已被创建（列表B）。</p>
+<p>　　 </p>
+<p>　　列表 B</p>
+<p>　　值得注意的是：索引就像一把双刃剑。对表的每一域做索引通常没有必要，且很可能导致运行速度减慢，因为向表中插入或修改数据时，MySQL不得不每次都为这些额外的工作重新建立索引。另一方面，避免对表的每一域做索引同样不是一个非常好的主意，因为在提高插入记录的速度时，导致查询操作的速度减慢。这就需要找到一个平衡点，比如在设计索引系统时，考虑表的主要功能（数据修复及编辑）不失为一种明智的选择。</p>
+<p>　　二、优化查询性能</p>
+<p>　　在分析查询性能时，考虑EXPLAIN关键字同样很管用。EXPLAIN关键字一般放在SELECT查询语句的前面，用于描述MySQL如何执行查询操作、以及MySQL成功返回结果集需要执行的行数。下面的一个简单例子可以说明（列表C）这一过程：</p>
+<p>　　 </p>
+<p>　　列表 C</p>
+<p>　　这里查询是基于两个表连接。EXPLAIN关键字描述了MySQL是如何处理连接这两个表。必须清楚的是，当前设计要求MySQL处理的是 country表中的一条记录以及city表中的整个4019条记录。这就意味着，还可使用其他的优化技巧改进其查询方法。例如，给city表添加如下索引（列表D）：</p>
+<p>mysql&gt; CREATE INDEX idx_ccode ON city(countrycode);<br>Query OK， 4079 rows affected (0.15 sec)<br>Records: 4079  Duplicates: 0  Warnings: 0</p>
+<p>　　列表 D</p>
+<p>　　现在，当我们重新使用EXPLAIN关键字进行查询时，我们可以看到一个显著的改进（列表E）：</p>
+<p>　　</p>
+<p>　　列表 E</p>
+<p>　　在这个例子中，MySQL现在只需要扫描city表中的333条记录就可产生一个结果集，其扫描记录数几乎减少了90％！自然，数据库资源的查询速度更快，效率更高。</p>
+<p>三、调整内部变量</p>
+<p>　　MySQL是如此的开放，所以可轻松地进一步调整其缺省设置以获得更优的性能及稳定性。需要优化的一些关键变量如下：</p>
+<p>　　改变索引缓冲区长度(key_buffer)</p>
+<p>　　一般，该变量控制缓冲区的长度在处理索引表（读/写操作）时使用。MySQL使用手册指出该变量可以不断增加以确保索引表的最佳性能，并推荐使用与系统内存25％的大小作为该变量的值。这是MySQL十分重要的配置变量之一，如果你对优化和提高系统性能有兴趣，可以从改变 key_buffer_size变量的值开始。</p>
+<p>　　改变表长(read_buffer_size)</p>
+<p>　　当一个查询不断地扫描某一个表，MySQL会为它分配一段内存缓冲区。read_buffer_size变量控制这一缓冲区的大小。如果你认为连续扫描进行得太慢，可以通过增加该变量值以及内存缓冲区大小提高其性能。</p>
+<p>　　设定打开表的数目的最大值(table_cache)</p>
+<p>　　该变量控制MySQL在任何时候打开表的最大数目，由此能控制服务器响应输入请求的能力。它跟max_connections变量密切相关，增加 table_cache值可使MySQL打开更多的表，就如增加max_connections值可增加连接数一样。当收到大量不同数据库及表的请求时，可以考虑改变这一值的大小。</p>
+<p>　　对缓长查询设定一个时间限制(long_query_time)</p>
+<p>　　MySQL带有“慢查询日志”，它会自动地记录所有的在一个特定的时间范围内尚未结束的查询。这个日志对于跟踪那些低效率或者行为不端的查询以及寻找优化对象都非常有用。long_query_time变量控制这一最大时间限定，以秒为单位。</p>
+<p>　　以上讨论并给出用于分析和优化SQL查询的三种工具的使用方法，以此提高你的应用程序性能。使用它们快乐地优化吧！</p>
+<p>使用EXPLAIN语句检查SQL语句</p>
+<p>　　当你在一条SELECT语句前放上关键词EXPLAIN，MySQL解释它将如何处理SELECT，提供有关表如何联结和以什么次序联结的信息。</p>
+<p>　　借助于EXPLAIN，你可以知道你什么时候必须为表加入索引以得到一个使用索引找到记录的更快的SELECT。</p>
+<p>EXPLAIN tbl_name</p>
+<p>or  EXPLAIN SELECT select_options<br>EXPLAIN tbl_name是DESCRIBE tbl_name或SHOW COLUMNS FROM tbl_name的一个同义词。</p>
+<p>　　从EXPLAIN的输出包括下面列：</p>
+<p>　　·table<br>　　输出的行所引用的表。</p>
+<p>　　· type<br>　　联结类型。各种类型的信息在下面给出。<br>　　不同的联结类型列在下面，以最好到最差类型的次序：<br>system const eq_ref ref range index ALL possible_keys</p>
+<p>　　· key<br>　　key列显示MySQL实际决定使用的键。如果没有索引被选择，键是NULL。</p>
+<p>　　· key_len<br>　　key_len列显示MySQL决定使用的键长度。如果键是NULL，长度是NULL。注意这告诉我们MySQL将实际使用一个多部键值的几个部分。</p>
+<p>　　· ref<br>　　ref列显示哪个列或常数与key一起用于从表中选择行。</p>
+<p>　　· rows<br>　　rows列显示MySQL相信它必须检验以执行查询的行数。</p>
+<p>　　·Extra<br>　　如果Extra列包括文字Only index，这意味着信息只用索引树中的信息检索出的。通常，这比扫描整个表要快。如果Extra列包括文字where used，它意味着一个WHERE子句将被用来限制哪些行与下一个表匹配或发向客户。</p>
+<p>　　通过相乘EXPLAIN输出的rows行的所有值，你能得到一个关于一个联结要多好的提示。这应该粗略地告诉你MySQL必须检验多少行以执行查询。</p>
+<p>　　例如，下面一个全连接：</p>
+<p>mysql&gt; EXPLAIN SELECT student.name From student，pet<br>-&gt; WHERE student.name=pet.owner;</p>
+<p>　　其结论为：</p>
+<p>+———+——+—————+——+———+——+——+————+<br>| table   | type | possible_keys | key  | key_len | ref  | rows | Extra      |<br>+———+——+—————+——+———+——+——+————+<br>| student | ALL  | NULL          | NULL |    NULL | NULL |   13 |            |<br>| pet     | ALL  | NULL          | NULL |    NULL | NULL |    9 | where used |<br>+———+——+—————+——+———+——+——+————+</p>
+<p>　　SELECT 查询的速度</p>
+<p>　　总的来说，当你想要使一个较慢的SELECT … WHERE更快，检查的第一件事情是你是否能增加一个索引。在不同表之间的所有引用通常应该用索引完成。你可以使用EXPLAIN来确定哪个索引用于一条SELECT语句。</p>
+<p>　　一些一般的建议：</p>
+<p>　　·为了帮助MySQL更好地优化查询，在它已经装载了相关数据后，在一个表上运行myisamchk –analyze。这为每一个更新一个值，指出有相同值地平均行数（当然，对唯一索引，这总是1。）</p>
+<p>　　·为了根据一个索引排序一个索引和数据，使用myisamchk –sort-index –sort-records=1（如果你想要在索引1上排序）。如果你有一个唯一索引，你想要根据该索引地次序读取所有的记录，这是使它更快的一个好方法。然而注意，这个排序没有被最佳地编写，并且对一个大表将花很长时间！</p>
+<p>　　MySQL怎样优化WHERE子句</p>
+<p>　　where优化被放在SELECT中，因为他们最主要在那里使用里，但是同样的优化被用于DELETE和UPDATE语句。</p>
+<p>　　也要注意，本节是不完全的。MySQL确实作了许多优化而我们没有时间全部记录他们。</p>
+<p>　　由MySQL实施的一些优化列在下面：</p>
+<p>　　1、删除不必要的括号：<br>((a AND b) AND c OR (((a AND b) AND (c AND d))))<br>-&gt; (a AND b AND c) OR (a AND b AND c AND d)</p>
+<p>　　2、常数调入：<br>(a-&gt; b&gt;5 AND b=c AND a=5</p>
+<p>　　3、删除常数条件(因常数调入所需)：<br>(B&gt;=5 AND B=5) OR (B=6 AND 5=5) OR (B=7 AND 5=6)<br>-&gt; B=5 OR B=6</p>
+<p>　　4、索引使用的常数表达式仅计算一次。</p>
+<p>　　5、在一个单个表上的没有一个WHERE的COUNT(*)直接从表中检索信息。当仅使用一个表时，对任何NOT NULL表达式也这样做。</p>
+<p>　　6、无效常数表达式的早期检测。MySQL快速检测某些SELECT语句是不可能的并且不返回行。</p>
+<p>　　7、如果你不使用GROUP BY或分组函数(COUNT()、MIN()……)，HAVING与WHERE合并。</p>
+<p>　　8、为每个子联结(sub join)，构造一个更简单的WHERE以得到一个更快的WHERE计算并且也尽快跳过记录。</p>
+<p>　　9、所有常数的表在查询中的任何其他表前被首先读出。一个常数的表是：</p>
+<p>　　·一个空表或一个有1行的表。</p>
+<p>　　·与在一个UNIQUE索引、或一个PRIMARY KEY的WHERE子句一起使用的表，这里所有的索引部分使用一个常数表达式并且索引部分被定义为NOT NULL。</p>
+<p>　　所有下列的表用作常数表</p>
+<p> mysql&gt; SELECT * FROM t WHERE primary_key=1;<br>mysql&gt; SELECT * FROM t1，t2<br>WHERE t1.primary_key=1 AND t2.primary_key=t1.id;</p>
+<p>　　10、对联结表的最好联结组合是通过尝试所有可能性来找到:(。如果所有在ORDER BY和GROUP BY的列来自同一个表，那么当廉洁时，该表首先被选中。</p>
+<p>　　11、如果有一个ORDER BY子句和一个不同的GROUP BY子句，或如果ORDER BY或GROUP BY包含不是来自联结队列中的第一个表的其他表的列，创建一个临时表。</p>
+<p>　　12、如果你使用SQL_SMALL_RESULT，MySQL将使用一个在内存中的表。</p>
+<p>　　13、因为DISTINCT被变换到在所有的列上的一个GROUP BY，DISTINCT与ORDER BY结合也将在许多情况下需要一张临时表。</p>
+<p>　　14、每个表的索引被查询并且使用跨越少于30% 的行的索引。如果这样的索引没能找到，使用一个快速的表扫描。</p>
+<p>　　15、在一些情况下，MySQL能从索引中读出行，甚至不咨询数据文件。如果索引使用的所有列是数字的，那么只有索引树被用来解答查询。</p>
+<p>　　16、在每个记录被输出前，那些不匹配HAVING子句的行被跳过。</p>
+<p>　　下面是一些很快的查询例子</p>
+<p> mysql&gt; SELECT COUNT(*) FROM tbl_name;<br>mysql&gt; SELECT MIN(key_part1)，MAX(key_part1) FROM tbl_name;<br>mysql&gt; SELECT MAX(key_part2) FROM tbl_name<br>           WHERE key_part_1=constant;<br>mysql&gt; SELECT … FROM tbl_name<br>           ORDER BY key_part1，key_part2，… LIMIT 10;<br>mysql&gt; SELECT … FROM tbl_name<br>           ORDER BY key_part1 DESC，key_part2 DESC，… LIMIT 10;</p>
+<p>　　下列查询仅使用索引树就可解决(假设索引列是数字的)：</p>
+<p> mysql&gt; SELECT key_part1，key_part2 FROM tbl_name WHERE key_part1=val;<br>mysql&gt; SELECT COUNT(*) FROM tbl_name<br>           WHERE key_part1=val1 AND key_part2=val2;<br>mysql&gt; SELECT key_part2 FROM tbl_name GROUP BY key_part1;</p>
+<p>　　下列查询使用索引以排序顺序检索，不用一次另外的排序：</p>
+<p> mysql&gt; SELECT … FROM tbl_name ORDER BY key_part1，key_part2，…<br>mysql&gt; SELECT … FROM tbl_name ORDER BY key_part1 DESC，key_part2 DESC，…</p>
+<p>MySQL怎样优化LEFT JOIN</p>
+<p>在MySQL中，A LEFT JOIN B实现如下：</p>
+<p>1、表B被设置为依赖于表A。</p>
+<p>2、表A被设置为依赖于所有用在LEFT JOIN条件的表(除B外)。</p>
+<p>3、所有LEFT JOIN条件被移到WHERE子句中。</p>
+<p>4、进行所有标准的联结优化，除了一个表总是在所有它依赖的表之后被读取。如果有一个循环依赖，MySQL将发出一个错误。</p>
+<p>5、进行所有标准的WHERE优化。</p>
+<p>6、如果在A中有一行匹配WHERE子句，但是在B中没有任何行匹配LEFT JOIN条件，那么在B中生成所有列设置为NULL的一行。</p>
+<p>7、如果你使用LEFT JOIN来找出在某些表中不存在的行并且在WHERE部分你有下列测试：column_name IS NULL，这里column_name 被声明为NOT NULL的列，那么MySQL在它已经找到了匹配LEFT JOIN条件的一行后，将停止在更多的行后寻找(对一特定的键组合)。</p>
+<p>MySQL怎样优化LIMIT</p>
+<p>在一些情况中，当你使用LIMIT #而不使用HAVING时，MySQL将以不同方式处理查询。</p>
+<p>1、如果你用LIMIT只选择一些行，当MySQL一般比较喜欢做完整的表扫描时，它将在一些情况下使用索引。</p>
+<p>2、如果你使用LIMIT #与ORDER BY，MySQL一旦找到了第一个 # 行，将结束排序而不是排序整个表。</p>
+<p>3、当结合LIMIT #和DISTINCT时，MySQL一旦找到#个唯一的行，它将停止。</p>
+<p>4、在一些情况下，一个GROUP BY能通过顺序读取键(或在键上做排序)来解决，并然后计算摘要直到键值改变。在这种情况下，LIMIT #将不计算任何不必要的GROUP。</p>
+<p>5、只要MySQL已经发送了第一个#行到客户，它将放弃查询。</p>
+<p>6、LIMIT 0将总是快速返回一个空集合。这对检查查询并且得到结果列的列类型是有用的。</p>
+<p>7、临时表的大小使用LIMIT #计算需要多少空间来解决查询。</p>
+<p>记录转载和修改的速度</p>
+<p>很多时候关心的是优化 SELECT 查询，因为它们是最常用的查询，而且确定怎样优化它们并不总是直截了当。相对来说，将数据装入数据库是直截了当的。然而，也存在可用来改善数据装载操作效率的策略，其基本原理如下：</p>
+<p>·成批装载较单行装载更快，因为在装载每个记录后，不需要刷新索引高速缓存；可在成批记录装入后才刷新。</p>
+<p>·在表无索引时装载比索引后装载更快。如果有索引，不仅必须增加记录到数据文件，而且还要修改每个索引以反映增加了的新记录。</p>
+<p>·较短的 SQL 语句比较长的 SQL 语句要快，因为它们涉及服务器方的分析较少，而且还因为将它们通过网络从客户机发送到服务器更快。</p>
+<p>这些因素中有一些似乎微不足道（特别是最后一个因素），但如果要装载大量的数据，即使是很小的因素也会产生很大的不同结果。</p>
+<p>INSERT查询的速度</p>
+<p>插入一个记录的时间由下列组成：</p>
+<p>·连接：(3)</p>
+<p>·发送查询给服务器：(2)</p>
+<p>·分析查询：(2)</p>
+<p>·插入记录：（1 x 记录大小）</p>
+<p>·插入索引：（1 x 索引）</p>
+<p>·关闭：(1)</p>
+<p>这里的数字有点与总体时间成正比。这不考虑打开表的初始开销(它为每个并发运行的查询做一次)。</p>
+<p>表的大小以N log N (B 树)的速度减慢索引的插入。</p>
+<p>加快插入的一些方法：</p>
+<p>·如果你同时从同一客户插入很多行，使用多个值表的INSERT语句。这比使用分开INSERT语句快(在一些情况中几倍)。</p>
+<p>·如果你从不同客户插入很多行，你能通过使用INSERT DELAYED语句得到更高的速度。</p>
+<p>·注意，用MyISAM，如果在表中没有删除的行，能在SELECT:s正在运行的同时插入行。</p>
+<p>·当从一个文本文件装载一个表时，使用LOAD DATA INFILE。这通常比使用很多INSERT语句快20倍。</p>
+<p>·当表有很多索引时，有可能多做些工作使得LOAD DATA INFILE更快些。使用下列过程：</p>
+<p>1、有选择地用CREATE TABLE创建表。例如使用mysql或Perl-DBI。</p>
+<p>2、执行FLUSH TABLES，或外壳命令mysqladmin flush-tables。</p>
+<p>3、使用myisamchk –keys-used=0 -rq /path/to/db/tbl_name。这将从表中删除所有索引的使用。</p>
+<p>4、用LOAD DATA INFILE把数据插入到表中，这将不更新任何索引，因此很快。</p>
+<p>5、如果你有myisampack并且想要压缩表，在它上面运行myisampack。</p>
+<p>6、用myisamchk -r -q /path/to/db/tbl_name再创建索引。这将在将它写入磁盘前在内存中创建索引树，并且它更快，因为避免大量磁盘寻道。结果索引树也被完美地平衡。</p>
+<p>7、执行FLUSH TABLES，或外壳命令mysqladmin flush-tables。</p>
+<p>这个过程将被构造进在MySQL的某个未来版本的LOAD DATA INFILE。</p>
+<p>·你可以锁定你的表以加速插入</p>
+<p>mysql&gt; LOCK TABLES a WRITE;<br>mysql&gt; INSERT INTO a VALUES (1，23)，(2，34)，(4，33);<br>mysql&gt; INSERT INTO a VALUES (8，26)，(6，29);<br>mysql&gt; UNLOCK TABLES;</p>
+<p>　　主要的速度差别是索引缓冲区仅被清洗到磁盘上一次，在所有INSERT语句完成后。一般有与有不同的INSERT语句那样夺的索引缓冲区清洗。如果你能用一个单个语句插入所有的行，锁定就不需要。锁定也将降低多连接测试的整体时间，但是对某些线程最大等待时间将上升(因为他们等待锁)。例如：</p>
+<p>thread 1 does 1000 inserts<br>thread 2， 3， and 4 does 1 insert<br>thread 5 does 1000 inserts </p>
+<p>如果你不使用锁定，2、3和4将在1和5前完成。如果你使用锁定，2、3和4将可能不在1或5前完成，但是整体时间应该快大约40%。因为INSERT， UPDATE和DELETE操作在MySQL中是很快的，通过为多于大约5次连续不断地插入或更新一行的东西加锁，你将获得更好的整体性能。如果你做很多一行的插入，你可以做一个LOCK TABLES，偶尔随后做一个UNLOCK TABLES(大约每1000行)以允许另外的线程存取表。这仍然将导致获得好的性能。当然，LOAD DATA INFILE对装载数据仍然是更快的。</p>
+<p>为了对LOAD DATA INFILE和INSERT得到一些更快的速度，扩大关键字缓冲区。</p>
+<p>UPDATE查询的速度</p>
+<p>更改查询被优化为有一个写开销的一个SELECT查询。写速度依赖于被更新数据大小和被更新索引的数量。</p>
+<p>使更改更快的另一个方法是推迟更改并且然后一行一行地做很多更改。如果你锁定表，做一行一行地很多更改比一次做一个快。</p>
+<p>注意，动态记录格式的更改一个较长总长的记录，可能切开记录。因此如果你经常这样做，时不时地OPTIMIZE TABLE是非常重要的。</p>
+<p>DELETE查询的速度</p>
+<p>删除一个记录的时间精确地与索引数量成正比。为了更快速地删除记录，你可以增加索引缓存的大小。</p>
+<p>从一个表删除所有行比删除行的一大部分也要得多。</p>
+<p>索引对有效装载数据的影响</p>
+<p>如果表是索引的，则可利用批量插入（LOAD DATA 或多行的 INSERT 语句）来减少索引的开销。这样会最小化索引更新的影响，因为索引只需要在所有行处理过时才进行刷新，而不是在每行处理后就刷新。</p>
+<p>·如果需要将大量数据装入一个新表，应该创建该表且在未索引时装载，装载数据后才创建索引，这样做较快。一次创建索引（而不是每行修改一次索引）较快。</p>
+<p>·如果在装载之前删除或禁用索引，装入数据后再重新创建或启用索引可能使装载更快。<br>·如果想对数据装载使用删除或禁用策略，一定要做一些实验，看这样做是否值得（如果将少量数据装入一个大表中，重建和索引所花费的时间可能比装载数据的时间还要长）。</p>
+<p>可用DROP INDEX和CREATE INDEX 来删除和重建索引。</p>
+<p>另一种可供选择的方法是利用 myisamchk 或 isamchk 禁用和启用索引。这需要在 MySQL 服务器主机上有一个帐户，并对表文件有写入权。为了禁用表索引，可进入相应的数据库目录，执行下列命令之一：</p>
+<p>shell&gt;myisamchk –keys-used=0 tbl_name<br>shell&gt;isamchk –keys-used=0 tbl_name </p>
+<p>　　对具有 .MYI 扩展名的索引文件的 MyISAM 表使用 myisamchk，对具有 .ISM 扩展名的索引文件的 ISAM 表使用 isamchk。在向表中装入数据后，按如下激活索引：</p>
+<p>shell&gt;myisamchk –recover –quick –keys-used=0 tbl_name<br>shell&gt;isamchk –recover –quick –keys-used=0 tbl_name</p>
+<p>　　n 为表具有的索引数目。可用 –description 选项调用相应的实用程序得出这个值：</p>
+<p>shell&gt;myisamchk –discription tbl_name<br>$isamchk –discription tbl_name</p>
+<p>　　如果决定使用索引禁用和激活，应该使用第13章中介绍的表修复锁定协议以阻止服务器同时更改锁（虽然此时不对表进行修复，但要对它像表修复过程一样进行修改，因此需要使用相同的锁定协议）。</p>
+<p>上述数据装载原理也适用于与需要执行不同操作的客户机有关的固定查询。例如，一般希望避免在频繁更新的表上长时间运行 SELECT 查询。长时间运行 SELECT 查询会产生大量争用，并降低写入程序的性能。一种可能的解决方法为，如果执行写入的主要是 INSERT 操作，那么先将记录存入一个临时表，然后定期地将这些记录加入主表中。如果需要立即访问新记录，这不是一个可行的方法。但只要能在一个较短的时间内不访问它们，就可以使用这个方法。使用临时表有两个方面的好处。首先，它减少了与主表上 SELECT 查询语句的争用，因此，执行更快。其次，从临时表将记录装入主表的总时间较分别装载记录的总时间少；相应的索引高速缓存只需在每个批量装载结束时进行刷新，而不是在每行装载后刷新。</p>
+<p>这个策略的一个应用是进入 Web 服务器的Web 页访问 MySQL 数据库。在此情形下，可能没有保证记录立即进入主表的较高权限。</p>
+<p>如果数据并不完全是那种在系统非正常关闭事件中插入的单个记录，那么减少索引刷新的另一策略是使用 MyISAM 表的 DELAYED_KEY_WRITE 表创建选项（如果将 MySQL 用于某些数据录入工作时可能会出现这种情况）。此选项使索引高速缓存只偶尔刷新，而不是在每次插入后都要刷新。</p>
+<p>如果希望在服务器范围内利用延迟索引刷新，只要利用 –delayed-key-write 选项启动 mysqld 即可。在此情形下，索引块写操作延迟到必须刷新块以便为其他索引值腾出空间为止，或延迟到执行了一个 flush-tables 命令后，或延迟到该索引表关闭。</p>
+
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/MySQL/" rel="tag"># MySQL</a>
+          </div>
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-item">
+                <a href="/2016/01/03/%E6%82%B2%E8%A7%82%E9%94%81%E5%92%8C%E4%B9%90%E8%A7%82%E9%94%81/" rel="prev" title="悲观锁和乐观锁">
+                  <i class="fa fa-chevron-left"></i> 悲观锁和乐观锁
+                </a>
+            </div>
+            <div class="post-nav-item">
+                <a href="/2016/01/03/select%E8%AF%AD%E5%8F%A5%E6%89%A7%E8%A1%8C%E9%A1%BA%E5%BA%8F/" rel="next" title="select语句执行顺序">
+                  select语句执行顺序 <i class="fa fa-chevron-right"></i>
+                </a>
+            </div>
+          </div>
+    </footer>
+  </article>
+</div>
+
+
+
+
+
+
+</div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+
+
+<div class="copyright">
+  © 
+  <span itemprop="copyrightYear">2021</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">疯狂的茶几</span>
+</div>
+<div class="wordcount">
+  <span class="post-meta-item">
+    <span class="post-meta-item-icon">
+      <i class="fa fa-chart-line"></i>
+    </span>
+    <span title="站点总字数">153k</span>
+  </span>
+  <span class="post-meta-item">
+    <span class="post-meta-item-icon">
+      <i class="fa fa-coffee"></i>
+    </span>
+    <span title="站点阅读时长">2:19</span>
+  </span>
+</div>
+
+    </div>
+  </footer>
+
+  
+  <script src="https://cdn.jsdelivr.net/npm/animejs@3.2.1/lib/anime.min.js" integrity="sha256-XL2inqUJaslATFnHdJOi9GfQ60on8Wx1C2H8DYiN1xY=" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@next-theme/pjax@0.5.0/pjax.min.js" integrity="sha256-3NkoLDrmHLTYj7csHIZSr0MHAFTXth7Ua/DDt4MRUAg=" crossorigin="anonymous"></script>
+
+
+  
+
+
+
+
+
+  
+  
+
+
+  
+
+
+
+
+
+
+
+<script src="/bundle.js"></script><script>{&quot;enable&quot;:true,&quot;theme&quot;:&quot;forest&quot;,&quot;js&quot;:{&quot;url&quot;:&quot;https:&#x2F;&#x2F;cdn.jsdelivr.net&#x2F;npm&#x2F;mermaid@8.9.3&#x2F;dist&#x2F;mermaid.min.js&quot;,&quot;integrity&quot;:&quot;sha256-OyJHvRcZHaRR6Ig73ppxF4QXk8HzvfgTprRWkulCkfY&#x3D;&quot;}}</script></body></html>

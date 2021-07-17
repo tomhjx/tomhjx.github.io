@@ -1,0 +1,494 @@
+<!DOCTYPE html><html lang="zh-CN"><head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 5.4.0">
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+
+
+
+
+
+
+<script class="next-config" data-name="main" type="application/json">{&quot;hostname&quot;:&quot;www.tomhjx.top&quot;,&quot;root&quot;:&quot;&#x2F;&quot;,&quot;images&quot;:&quot;&#x2F;images&quot;,&quot;scheme&quot;:&quot;Mist&quot;,&quot;version&quot;:&quot;8.5.0&quot;,&quot;exturl&quot;:false,&quot;sidebar&quot;:{&quot;position&quot;:&quot;left&quot;,&quot;display&quot;:&quot;post&quot;,&quot;padding&quot;:18,&quot;offset&quot;:12},&quot;copycode&quot;:false,&quot;bookmark&quot;:{&quot;enable&quot;:false,&quot;color&quot;:&quot;#222&quot;,&quot;save&quot;:&quot;auto&quot;},&quot;fancybox&quot;:false,&quot;mediumzoom&quot;:false,&quot;lazyload&quot;:false,&quot;pangu&quot;:false,&quot;comments&quot;:{&quot;style&quot;:&quot;tabs&quot;,&quot;active&quot;:null,&quot;storage&quot;:true,&quot;lazyload&quot;:false,&quot;nav&quot;:null},&quot;motion&quot;:{&quot;enable&quot;:false,&quot;async&quot;:false,&quot;transition&quot;:{&quot;post_block&quot;:&quot;fadeIn&quot;,&quot;post_header&quot;:&quot;fadeInDown&quot;,&quot;post_body&quot;:&quot;fadeInDown&quot;,&quot;coll_header&quot;:&quot;fadeInLeft&quot;,&quot;sidebar&quot;:&quot;fadeInUp&quot;}},&quot;prism&quot;:false,&quot;i18n&quot;:{&quot;placeholder&quot;:&quot;搜索...&quot;,&quot;empty&quot;:&quot;没有找到任何搜索结果：${query}&quot;,&quot;hits_time&quot;:&quot;找到 ${hits} 个搜索结果（用时 ${time} 毫秒）&quot;,&quot;hits&quot;:&quot;找到 ${hits} 个搜索结果&quot;},&quot;path&quot;:&quot;&#x2F;search.xml&quot;,&quot;localsearch&quot;:{&quot;enable&quot;:true,&quot;trigger&quot;:&quot;auto&quot;,&quot;top_n_per_article&quot;:1,&quot;unescape&quot;:false,&quot;preload&quot;:false}}</script>
+<meta name="description" content="背景单位每年都会举行运动会，有一个2000m长跑的项目，大约每年报名人员为男选手40人，女选手20人，只有一条橡胶跑道。一次比赛10人齐跑，所以至少需要6场比赛。 2000米的完成时间要求是20分钟，超过20分钟不计数，所以比赛耗时我们计算为20分钟，加上比赛前的动员组织，比赛后的清场，我们假定每场比赛耗时30分钟。 现在我们预估下耗时： 1、60人/10人每场 = 6场，至少需要举行6场 2、总">
+<meta property="og:type" content="article">
+<meta property="og:title" content="设计容量，到底有多重要">
+<meta property="og:url" content="https://www.tomhjx.top/2021/06/05/%E8%AE%BE%E8%AE%A1%E5%AE%B9%E9%87%8F%EF%BC%8C%E5%88%B0%E5%BA%95%E6%9C%89%E5%A4%9A%E9%87%8D%E8%A6%81/index.html">
+<meta property="og:site_name" content="疯狂的茶几">
+<meta property="og:description" content="背景单位每年都会举行运动会，有一个2000m长跑的项目，大约每年报名人员为男选手40人，女选手20人，只有一条橡胶跑道。一次比赛10人齐跑，所以至少需要6场比赛。 2000米的完成时间要求是20分钟，超过20分钟不计数，所以比赛耗时我们计算为20分钟，加上比赛前的动员组织，比赛后的清场，我们假定每场比赛耗时30分钟。 现在我们预估下耗时： 1、60人/10人每场 = 6场，至少需要举行6场 2、总">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://p.tomhjx.top/Fodidb1DJ5EGoNH05Xuzodg59knu">
+<meta property="og:image" content="https://p.tomhjx.top/FrZsYefbfU6dEpatuSaY4-wj9u5Z">
+<meta property="article:published_time" content="2021-06-05T01:55:17.000Z">
+<meta property="article:modified_time" content="2021-07-17T10:27:26.828Z">
+<meta property="article:author" content="疯狂的茶几">
+<meta property="article:tag" content="转载">
+<meta property="article:tag" content="度量">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://p.tomhjx.top/Fodidb1DJ5EGoNH05Xuzodg59knu">
+
+
+<link rel="canonical" href="https://www.tomhjx.top/2021/06/05/%E8%AE%BE%E8%AE%A1%E5%AE%B9%E9%87%8F%EF%BC%8C%E5%88%B0%E5%BA%95%E6%9C%89%E5%A4%9A%E9%87%8D%E8%A6%81/">
+
+
+
+<script class="next-config" data-name="page" type="application/json">{&quot;sidebar&quot;:&quot;&quot;,&quot;isHome&quot;:false,&quot;isPost&quot;:true,&quot;lang&quot;:&quot;zh-CN&quot;,&quot;comments&quot;:true,&quot;permalink&quot;:&quot;https:&#x2F;&#x2F;www.tomhjx.top&#x2F;2021&#x2F;06&#x2F;05&#x2F;%E8%AE%BE%E8%AE%A1%E5%AE%B9%E9%87%8F%EF%BC%8C%E5%88%B0%E5%BA%95%E6%9C%89%E5%A4%9A%E9%87%8D%E8%A6%81&#x2F;&quot;,&quot;path&quot;:&quot;2021&#x2F;06&#x2F;05&#x2F;设计容量，到底有多重要&#x2F;&quot;,&quot;title&quot;:&quot;设计容量，到底有多重要&quot;}</script>
+
+<script class="next-config" data-name="calendar" type="application/json">&quot;&quot;</script>
+<title>设计容量，到底有多重要 | 疯狂的茶几</title>
+  
+
+
+
+<script data-ad-client="ca-pub-5611057674493702" async="" src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
+  <style>@-moz-keyframes next-shake{0%{transform:translate(1pt,1pt) rotate(0)}10%{transform:translate(-1pt,-2pt) rotate(-1deg)}20%{transform:translate(-3pt,0) rotate(1deg)}30%{transform:translate(3pt,2pt) rotate(0)}40%{transform:translate(1pt,-1pt) rotate(1deg)}50%{transform:translate(-1pt,2pt) rotate(-1deg)}60%{transform:translate(-3pt,1pt) rotate(0)}70%{transform:translate(3pt,1pt) rotate(-1deg)}80%{transform:translate(-1pt,-1pt) rotate(1deg)}90%{transform:translate(1pt,2pt) rotate(0)}to{transform:translate(1pt,-2pt) rotate(-1deg)}}@-webkit-keyframes next-shake{0%{transform:translate(1pt,1pt) rotate(0)}10%{transform:translate(-1pt,-2pt) rotate(-1deg)}20%{transform:translate(-3pt,0) rotate(1deg)}30%{transform:translate(3pt,2pt) rotate(0)}40%{transform:translate(1pt,-1pt) rotate(1deg)}50%{transform:translate(-1pt,2pt) rotate(-1deg)}60%{transform:translate(-3pt,1pt) rotate(0)}70%{transform:translate(3pt,1pt) rotate(-1deg)}80%{transform:translate(-1pt,-1pt) rotate(1deg)}90%{transform:translate(1pt,2pt) rotate(0)}to{transform:translate(1pt,-2pt) rotate(-1deg)}}@-o-keyframes next-shake{0%{transform:translate(1pt,1pt) rotate(0)}10%{transform:translate(-1pt,-2pt) rotate(-1deg)}20%{transform:translate(-3pt,0) rotate(1deg)}30%{transform:translate(3pt,2pt) rotate(0)}40%{transform:translate(1pt,-1pt) rotate(1deg)}50%{transform:translate(-1pt,2pt) rotate(-1deg)}60%{transform:translate(-3pt,1pt) rotate(0)}70%{transform:translate(3pt,1pt) rotate(-1deg)}80%{transform:translate(-1pt,-1pt) rotate(1deg)}90%{transform:translate(1pt,2pt) rotate(0)}to{transform:translate(1pt,-2pt) rotate(-1deg)}}@keyframes next-shake{0%{transform:translate(1pt,1pt) rotate(0)}10%{transform:translate(-1pt,-2pt) rotate(-1deg)}20%{transform:translate(-3pt,0) rotate(1deg)}30%{transform:translate(3pt,2pt) rotate(0)}40%{transform:translate(1pt,-1pt) rotate(1deg)}50%{transform:translate(-1pt,2pt) rotate(-1deg)}60%{transform:translate(-3pt,1pt) rotate(0)}70%{transform:translate(3pt,1pt) rotate(-1deg)}80%{transform:translate(-1pt,-1pt) rotate(1deg)}90%{transform:translate(1pt,2pt) rotate(0)}to{transform:translate(1pt,-2pt) rotate(-1deg)}}@-moz-keyframes octocat-wave{0%,to{transform:rotate(0)}20%,60%{transform:rotate(-25deg)}40%,80%{transform:rotate(10deg)}}@-webkit-keyframes octocat-wave{0%,to{transform:rotate(0)}20%,60%{transform:rotate(-25deg)}40%,80%{transform:rotate(10deg)}}@-o-keyframes octocat-wave{0%,to{transform:rotate(0)}20%,60%{transform:rotate(-25deg)}40%,80%{transform:rotate(10deg)}}@keyframes octocat-wave{0%,to{transform:rotate(0)}20%,60%{transform:rotate(-25deg)}40%,80%{transform:rotate(10deg)}}@-moz-keyframes icon-animate{0%,to{transform:scale(1)}10%,30%{transform:scale(.9)}20%,40%,50%,60%,70%,80%{transform:scale(1.1)}}@-webkit-keyframes icon-animate{0%,to{transform:scale(1)}10%,30%{transform:scale(.9)}20%,40%,50%,60%,70%,80%{transform:scale(1.1)}}@-o-keyframes icon-animate{0%,to{transform:scale(1)}10%,30%{transform:scale(.9)}20%,40%,50%,60%,70%,80%{transform:scale(1.1)}}@keyframes icon-animate{0%,to{transform:scale(1)}10%,30%{transform:scale(.9)}20%,40%,50%,60%,70%,80%{transform:scale(1.1)}}@-moz-keyframes next-roll{0%{transform:rotateZ(30deg)}to{transform:rotateZ(-30deg)}}@-webkit-keyframes next-roll{0%{transform:rotateZ(30deg)}to{transform:rotateZ(-30deg)}}@-o-keyframes next-roll{0%{transform:rotateZ(30deg)}to{transform:rotateZ(-30deg)}}@keyframes next-roll{0%{transform:rotateZ(30deg)}to{transform:rotateZ(-30deg)}}@-moz-keyframes dot-flash{0%{opacity:1;transform:scale(1)}to{opacity:0;transform:scale(.8)}}@-webkit-keyframes dot-flash{0%{opacity:1;transform:scale(1)}to{opacity:0;transform:scale(.8)}}@-o-keyframes dot-flash{0%{opacity:1;transform:scale(1)}to{opacity:0;transform:scale(.8)}}@keyframes dot-flash{0%{opacity:1;transform:scale(1)}to{opacity:0;transform:scale(.8)}}:root{--body-bg-color:#fff;--content-bg-color:#f5f5f5;--card-bg-color:#f5f5f5;--text-color:#555;--blockquote-color:#666;--link-color:#555;--link-hover-color:#222;--brand-color:#222;--brand-hover-color:#222;--table-row-odd-bg-color:#f9f9f9;--table-row-hover-bg-color:#f5f5f5;--menu-item-bg-color:#ddd;--btn-default-bg:transparent;--btn-default-color:var(--link-color);--btn-default-border-color:var(--link-color);--btn-default-hover-bg:transparent;--btn-default-hover-color:var(--link-hover-color);--btn-default-hover-border-color:var(--link-hover-color);--highlight-background:#f0f0f0;--highlight-foreground:#444;--highlight-gutter-background:#dedede;--highlight-gutter-foreground:#555}@media (prefers-color-scheme:dark){:root{--body-bg-color:#282828;--content-bg-color:#333;--card-bg-color:#555;--text-color:#ccc;--blockquote-color:#bbb;--link-color:#ccc;--link-hover-color:#eee;--brand-color:#ddd;--brand-hover-color:#ddd;--table-row-odd-bg-color:#282828;--table-row-hover-bg-color:#363636;--menu-item-bg-color:#555;--btn-default-bg:#222;--btn-default-color:#ccc;--btn-default-border-color:#555;--btn-default-hover-bg:#666;--btn-default-hover-color:#ccc;--btn-default-hover-border-color:#666;--highlight-background:#1d1f21;--highlight-foreground:#c5c8c6;--highlight-gutter-background:#2d2f31;--highlight-gutter-foreground:#b4b7b5}img{opacity:.75}img:hover{opacity:.9}}html{line-height:1.15;-webkit-text-size-adjust:100%}body{margin:0}details,main{display:block}hr{box-sizing:content-box;overflow:visible;background-image:repeating-linear-gradient(-45deg,#ddd,#ddd 4px,transparent 4px,transparent 8px);border:0;height:2px;margin:20px 0}kbd,pre,samp{font-size:1em}samp{font-family:monospace,monospace}a{background:0 0;border-bottom:1px solid #ccc;color:var(--link-color);cursor:pointer;outline:0;text-decoration:none;overflow-wrap:break-word}abbr[title]{border-bottom:none;text-decoration:underline dotted}b,strong{font-weight:bolder}small{font-size:80%}sub,sup{font-size:75%;line-height:0;position:relative;vertical-align:baseline}sub{bottom:-.25em}sup{top:-.5em}img{border-style:none}button,input,optgroup,select,textarea{font-family:inherit;font-size:100%;line-height:1.15;margin:0}button,input{overflow:visible}button,select{text-transform:none}[type=button],[type=reset],[type=submit],button{-webkit-appearance:button}[type=button]::-moz-focus-inner,[type=reset]::-moz-focus-inner,[type=submit]::-moz-focus-inner,button::-moz-focus-inner{border-style:none;padding:0}[type=button]:-moz-focusring,[type=reset]:-moz-focusring,[type=submit]:-moz-focusring,button:-moz-focusring{outline:1px dotted ButtonText}fieldset{padding:.35em .75em .625em}legend{color:inherit;display:table;max-width:100%;white-space:normal}progress{vertical-align:baseline}textarea{overflow:auto}[type=checkbox],[type=radio],legend{box-sizing:border-box;padding:0}[type=number]::-webkit-inner-spin-button,[type=number]::-webkit-outer-spin-button{height:auto}[type=search]{outline-offset:-2px;-webkit-appearance:textfield}[type=search]::-webkit-search-decoration{-webkit-appearance:none}::-webkit-file-upload-button{font:inherit;-webkit-appearance:button}summary{display:list-item}[hidden],template{display:none}::selection{background:#262a30;color:#eee}body,html{height:100%}body,h1,h2,h3,h4,h5,h6{font-family:Lato,'PingFang SC','Microsoft YaHei',sans-serif}body{background:var(--body-bg-color);color:var(--text-color);line-height:2;min-height:100%;position:relative;transition:padding .2s ease-in-out}h1,h2,h3,h4,h5,h6{font-weight:700;line-height:1.5;margin:20px 0 15px}h1{font-size:1.5em}h2{font-size:1.375em}h3{font-size:1.25em}h4{font-size:1.125em}body,h5{font-size:1em}h6{font-size:.875em}p,table{margin:0 0 20px}a:hover{border-bottom-color:var(--link-hover-color);color:var(--link-hover-color)}embed,iframe,img,video{display:block;margin-left:auto;margin-right:auto;max-width:100%}blockquote{border-left:4px solid #ddd;color:var(--blockquote-color);margin:0;padding:0 15px}blockquote cite::before{content:'-';padding:0 5px}dt{font-weight:700}dd{margin:0;padding:0}.table-container{overflow:auto}table{border-collapse:collapse;border-spacing:0;font-size:.875em;width:100%}tbody tr:nth-of-type(odd){background:var(--table-row-odd-bg-color)}tbody tr:hover{background:var(--table-row-hover-bg-color)}caption,td,th{padding:8px}td,th{border:1px solid #ddd;border-bottom:3px solid #ddd}th{font-weight:700;padding-bottom:10px}td{border-bottom-width:1px}.btn{background:var(--btn-default-bg);border:2px solid var(--btn-default-border-color);border-radius:0;color:var(--btn-default-color);display:inline-block;font-size:.875em;line-height:2;transition:background-color .2s ease-in-out}.btn:hover{background:var(--btn-default-hover-bg);border-color:var(--btn-default-hover-border-color);color:var(--btn-default-hover-color)}.btn+.btn{margin:0 0 8px 8px}.btn .fa-fw{text-align:left;width:1.285714285714286em}.toggle{line-height:0}.toggle .toggle-line{background:#fff;display:block;height:2px;left:0;position:relative;top:0;transition:all .4s;width:100%}.toggle .toggle-line:not(:first-child){margin-top:3px}.toggle.toggle-arrow .toggle-line:first-child{left:50%;top:2px;transform:rotate(45deg);width:50%}.toggle.toggle-arrow .toggle-line:last-child{left:50%;top:-2px;transform:rotate(-45deg);width:50%}.toggle.toggle-close .toggle-line:nth-child(2){opacity:0}.toggle.toggle-close .toggle-line:first-child{top:5px;transform:rotate(45deg)}.toggle.toggle-close .toggle-line:last-child{top:-5px;transform:rotate(-45deg)}.hljs{display:block;overflow-x:auto;padding:.5em;background:#f0f0f0}.hljs,.hljs-subst{color:#444}.hljs-comment{color:#888}.hljs-attribute,.hljs-doctag,.hljs-keyword,.hljs-meta-keyword,.hljs-name,.hljs-selector-tag{font-weight:700}.hljs-deletion,.hljs-number,.hljs-quote,.hljs-selector-class,.hljs-selector-id,.hljs-string,.hljs-template-tag,.hljs-type{color:#800}.hljs-section,.hljs-title{color:#800;font-weight:700}.hljs-link,.hljs-regexp,.hljs-selector-attr,.hljs-selector-pseudo,.hljs-symbol,.hljs-template-variable,.hljs-variable{color:#bc6060}.hljs-literal{color:#78a960}.hljs-addition,.hljs-built_in,.hljs-bullet,.hljs-code{color:#397300}.hljs-meta{color:#1f7199}.hljs-meta-string{color:#4d99bf}.hljs-emphasis{font-style:italic}.hljs-strong{font-weight:700}@media (prefers-color-scheme:dark){.hljs-comment,.hljs-quote{color:#969896}.hljs-deletion,.hljs-name,.hljs-regexp,.hljs-selector-class,.hljs-selector-id,.hljs-tag,.hljs-template-variable,.hljs-variable{color:#c66}.hljs-built_in,.hljs-builtin-name,.hljs-link,.hljs-literal,.hljs-meta,.hljs-number,.hljs-params,.hljs-type{color:#de935f}.hljs-attribute{color:#f0c674}.hljs-addition,.hljs-bullet,.hljs-string,.hljs-symbol{color:#b5bd68}.hljs-section,.hljs-title{color:#81a2be}.hljs-keyword,.hljs-selector-tag{color:#b294bb}.hljs{display:block;overflow-x:auto;background:#1d1f21;color:#c5c8c6;padding:.5em}.hljs-emphasis{font-style:italic}.hljs-strong{font-weight:700}}code,figure.highlight,kbd,pre{background:var(--highlight-background);color:var(--highlight-foreground)}figure.highlight,pre{line-height:1.6;margin:0 auto 20px}code,pre{font-family:consolas,Menlo,monospace,'PingFang SC','Microsoft YaHei'}code{border-radius:3px;font-size:.875em;padding:2px 4px;overflow-wrap:break-word}kbd{border:2px solid #ccc;border-radius:.2em;box-shadow:.1em .1em .2em rgba(0,0,0,.1);font-family:inherit;padding:.1em .3em;white-space:nowrap}figure.highlight,pre{position:relative}figure.highlight pre{border:0;margin:0;padding:10px 0}figure.highlight table{border:0;margin:0;width:auto}figure.highlight td{border:0;padding:0}figure.highlight figcaption,pre .caption,pre figcaption{background:var(--highlight-gutter-background);color:var(--highlight-foreground);display:flow-root;font-size:.875em;line-height:1.2;padding:.5em}figure.highlight figcaption a,pre .caption a,pre figcaption a{color:var(--highlight-foreground);float:right}figure.highlight figcaption a:hover,pre .caption a:hover,pre figcaption a:hover{border-bottom-color:var(--highlight-foreground)}figure.highlight .gutter{-moz-user-select:none;-ms-user-select:none;-webkit-user-select:none;user-select:none}figure.highlight .gutter pre{background:var(--highlight-gutter-background);color:var(--highlight-gutter-foreground);padding-left:10px;padding-right:10px;text-align:right}figure.highlight .code pre{padding-left:10px;width:100%}pre .caption,pre figcaption{margin-bottom:10px}.gist table{width:auto}.gist table td{border:0}pre{overflow:auto;padding:10px}pre code{background:0 0;padding:0;text-shadow:none}.blockquote-center{border-left:none;margin:40px 0;padding:0;position:relative;text-align:center}.blockquote-center::after,.blockquote-center::before{left:0;line-height:1;opacity:.6;position:absolute;width:100%}.blockquote-center::before{border-top:1px solid #ccc;text-align:left;top:-20px;content:'\f10d';font-family:'Font Awesome 5 Free';font-weight:900}.blockquote-center::after{border-bottom:1px solid #ccc;bottom:-20px;text-align:right;content:'\f10e';font-family:'Font Awesome 5 Free';font-weight:900}.blockquote-center div,.blockquote-center p{text-align:center}.group-picture{margin-bottom:20px}.group-picture .group-picture-row{display:flex;gap:3px;margin-bottom:3px}.group-picture .group-picture-column{flex:1}.group-picture .group-picture-column img{height:100%;margin:0;object-fit:cover;width:100%}.post-body .label{color:#555;padding:0 2px}.post-body .label.default{background:#f0f0f0}.post-body .label.primary{background:#efe6f7}.post-body .label.info{background:#e5f2f8}.post-body .label.success{background:#e7f4e9}.post-body .label.warning{background:#fcf6e1}.post-body .label.danger{background:#fae8eb}.post-body .link-grid{display:grid;grid-gap:1.5rem 1.5rem;gap:1.5rem 1.5rem;grid-template-columns:1fr 1fr;margin-bottom:20px;padding:1rem}@media (max-width:767px){.post-body .link-grid{grid-template-columns:1fr}}.post-body .link-grid .link-grid-container{border:solid #ddd;box-shadow:1rem 1rem .5rem rgba(0,0,0,.5);min-height:5rem;min-width:0;padding:.5rem;position:relative;transition:background .3s}.post-body .link-grid .link-grid-container:hover{animation:next-shake .5s;background:var(--card-bg-color)}.post-body .link-grid .link-grid-container:active{box-shadow:.5rem .5rem .25rem rgba(0,0,0,.5);transform:translate(.2rem,.2rem)}.post-body .link-grid .link-grid-container .link-grid-image{border:1px solid #ddd;border-radius:50%;box-sizing:border-box;height:5rem;padding:3px;position:absolute;width:5rem}.post-body .link-grid .link-grid-container p{margin:0 1rem 0 6rem}.post-body .link-grid .link-grid-container p:first-of-type{font-size:1.2em}.post-body .link-grid .link-grid-container p:last-of-type{font-size:.8em;line-height:1.3rem;opacity:.7}.post-body .link-grid .link-grid-container a{border:0;height:100%;left:0;position:absolute;top:0;width:100%}.post-body .tabs{margin-bottom:20px;padding-top:10px}.post-body h1,.post-body h2,.post-body h3,.post-body h4,.post-body h5,.post-body h6{padding-top:10px}.post-body .tabs ul.nav-tabs,.tabs-comment ul.nav-tabs{display:flex;flex-wrap:wrap;justify-content:center;margin:0;padding:0}@media (max-width:413px){.post-body .tabs ul.nav-tabs,.tabs-comment ul.nav-tabs{display:block;margin-bottom:5px}}.post-body .tabs ul.nav-tabs li.tab,.tabs-comment ul.nav-tabs li.tab{border-bottom:1px solid #ddd;border-left:1px solid transparent;border-right:1px solid transparent;border-radius:0 0 0 0;border-top:3px solid transparent;flex-grow:1;list-style-type:none}@media (max-width:413px){.post-body .tabs ul.nav-tabs li.tab,.tabs-comment ul.nav-tabs li.tab{border-bottom:1px solid transparent;border-left:3px solid transparent;border-right:1px solid transparent;border-top:1px solid transparent;border-radius:0}}.post-body .tabs ul.nav-tabs li.tab a,.tabs-comment ul.nav-tabs li.tab a{border-bottom:initial;display:block;line-height:1.8;padding:.25em .75em;text-align:center;transition:all .2s ease-out}.post-body .tabs ul.nav-tabs li.tab a i,.tabs-comment ul.nav-tabs li.tab a i{width:1.285714285714286em}.post-body .tabs ul.nav-tabs li.tab.active,.tabs-comment ul.nav-tabs li.tab.active{border-color:#fc6423 #ddd transparent}@media (max-width:413px){.post-body .tabs ul.nav-tabs li.tab.active,.tabs-comment ul.nav-tabs li.tab.active{border-color:#ddd #ddd #ddd #fc6423}}.post-body .tabs ul.nav-tabs li.tab.active a,.tabs-comment ul.nav-tabs li.tab.active a{cursor:default}.post-body .tabs .tab-content,.tabs-comment .tab-content{border:1px solid #ddd;border-radius:0 0 0 0;border-top-color:transparent}@media (max-width:413px){.post-body .tabs .tab-content,.tabs-comment .tab-content{border-radius:0;border-top-color:#ddd}}.post-body .tabs .tab-content .tab-pane,.tabs-comment .tab-content .tab-pane{padding:20px 20px 0}.post-body .tabs .tab-content .tab-pane:not(.active),.tabs-comment .tab-content .tab-pane:not(.active){display:none}.post-body .note{border-radius:3px;margin-bottom:20px;padding:1em;position:relative;border:1px solid #eee;border-left-width:5px}.post-body .note summary{cursor:pointer;outline:0}.post-body .note summary p{display:inline}.post-body .note h2,.post-body .note h3,.post-body .note h4,.post-body .note h5,.post-body .note h6{border-bottom:initial;margin:0;padding-top:0}.post-body .note blockquote:first-child,.post-body .note img:first-child,.post-body .note ol:first-child,.post-body .note p:first-child,.post-body .note pre:first-child,.post-body .note table:first-child,.post-body .note ul:first-child{margin-top:0}.post-body .note blockquote:last-child,.post-body .note img:last-child,.post-body .note ol:last-child,.post-body .note p:last-child,.post-body .note pre:last-child,.post-body .note table:last-child,.post-body .note ul:last-child{margin-bottom:0}.post-body .note.default{border-left-color:#777}.post-body .note.default h2,.post-body .note.default h3,.post-body .note.default h4,.post-body .note.default h5,.post-body .note.default h6{color:#777}.post-body .note.primary{border-left-color:#6f42c1}.post-body .note.primary h2,.post-body .note.primary h3,.post-body .note.primary h4,.post-body .note.primary h5,.post-body .note.primary h6{color:#6f42c1}.post-body .note.info{border-left-color:#428bca}.post-body .note.info h2,.post-body .note.info h3,.post-body .note.info h4,.post-body .note.info h5,.post-body .note.info h6{color:#428bca}.post-body .note.success{border-left-color:#5cb85c}.post-body .note.success h2,.post-body .note.success h3,.post-body .note.success h4,.post-body .note.success h5,.post-body .note.success h6{color:#5cb85c}.post-body .note.warning{border-left-color:#f0ad4e}.post-body .note.warning h2,.post-body .note.warning h3,.post-body .note.warning h4,.post-body .note.warning h5,.post-body .note.warning h6{color:#f0ad4e}.post-body .note.danger{border-left-color:#d9534f}.post-body .note.danger h2,.post-body .note.danger h3,.post-body .note.danger h4,.post-body .note.danger h5,.post-body .note.danger h6{color:#d9534f}.mermaid{margin-bottom:20px;text-align:center}.pagination .next,.pagination .page-number,.pagination .prev{display:inline-block;margin:-1px 10px 0;padding:0 10px}.pagination .space{display:inline-block}@media (max-width:767px){.pagination .next,.pagination .page-number,.pagination .prev,.pagination .space{margin:0 5px}}.pagination{border-top:1px solid #eee;margin:120px 0 0}.pagination .next,.pagination .page-number,.pagination .prev{border-bottom:0;border-top:1px solid #eee;transition:border-color .2s ease-in-out}.pagination .next:hover,.pagination .page-number:hover,.pagination .prev:hover{border-top-color:var(--link-hover-color)}@media (max-width:767px){.pagination{border-top:0}.pagination .next,.pagination .page-number,.pagination .prev{border-bottom:1px solid #eee;border-top:0}.pagination .next:hover,.pagination .page-number:hover,.pagination .prev:hover{border-bottom-color:var(--link-hover-color)}}.pagination .space{margin:0;padding:0}.pagination .page-number.current{background:#ccc;border-color:#ccc;color:var(--content-bg-color)}.comments{margin-top:60px;overflow:hidden}.comment-button-group{display:flex;flex-wrap:wrap;justify-content:center;margin:1em 0}.comment-button-group .comment-button{margin:.1em .2em}.comment-button-group .comment-button.active{background:var(--btn-default-hover-bg);border-color:var(--btn-default-hover-border-color);color:var(--btn-default-hover-color)}.comment-position{display:none}.comment-position.active,.menu-item a{display:block}.tabs-comment{margin-top:4em;padding-top:0}.tabs-comment .comments{margin-top:0;padding-top:0}.headband{background:#222;height:3px}@media (max-width:991px){.headband{display:none}}.header{background:var(--content-bg-color)}.header-inner{margin:0 auto;width:700px}@media (min-width:1200px){.header-inner{width:800px}}@media (min-width:1600px){.header-inner{width:900px}}.site-brand-container{display:flex;flex-shrink:0;padding:0 10px}.use-motion .header,.use-motion .site-brand-container .toggle{opacity:0}.site-meta{flex-grow:1;text-align:center}@media (max-width:767px){.site-meta{text-align:center}}.custom-logo-image{margin-top:20px}@media (max-width:991px){.custom-logo-image{display:none}}.brand{border-bottom:0;color:var(--brand-color);display:inline-block;padding:0 40px}.brand:hover{color:var(--brand-hover-color)}.site-title{font-family:Lato,'PingFang SC','Microsoft YaHei',sans-serif;font-size:1.375em;font-weight:400;margin:0}.site-subtitle{color:#999;font-size:.8125em;margin:10px 0}.use-motion .custom-logo-image,.use-motion .site-subtitle,.use-motion .site-title{opacity:0;position:relative;top:-10px}.site-nav-right,.site-nav-toggle{display:none}@media (max-width:767px){.site-nav-right,.site-nav-toggle{display:flex;flex-direction:column;justify-content:center}}.site-nav-right .toggle,.site-nav-toggle .toggle{color:var(--text-color);padding:10px;width:22px}.site-nav-right .toggle .toggle-line,.site-nav-toggle .toggle .toggle-line{background:var(--text-color);border-radius:1px}@media (max-width:767px){.site-nav{--scroll-height:0;height:0;overflow:hidden;transition:height .2s ease-in-out}body:not(.site-nav-on) .site-nav .animated{animation:none}body.site-nav-on .site-nav{height:var(--scroll-height)}}.menu{margin:0;text-align:center}.menu-item{display:inline-block;list-style:none;margin:0 10px}@media (max-width:767px){.menu-item{display:block;margin-top:10px}.menu-item.menu-item-search{display:none}}.menu-item a{border-bottom:0;font-size:.8125em;transition:border-color .2s ease-in-out}.menu-item a.menu-item-active,.menu-item a:hover{background:var(--menu-item-bg-color)}.menu-item .fa,.menu-item .fab,.menu-item .far,.menu-item .fas{margin-right:8px}.menu-item .badge{display:inline-block;font-weight:700;line-height:1;margin-left:.35em;margin-top:.35em;text-align:center;white-space:nowrap}@media (max-width:767px){.menu-item .badge{float:right;margin-left:0}}.use-motion .menu-item{visibility:hidden}.github-corner :hover .octo-arm{animation:octocat-wave 560ms ease-in-out}.github-corner svg{color:#fff;fill:#222;position:absolute;right:0;top:0;z-index:1000}@media (max-width:991px){.github-corner{display:none}.github-corner .github-corner:hover .octo-arm{animation:none}.github-corner .github-corner .octo-arm{animation:octocat-wave 560ms ease-in-out}}@media (max-width:767px){.github-corner svg{top:inherit}}.sidebar-inner{color:#999;padding:18px 10px;text-align:center}.site-overview-item:not(:first-child){margin-top:10px}.cc-license .cc-opacity{border-bottom:0;opacity:.7}.cc-license .cc-opacity:hover{opacity:.9}.cc-license img,.post-reward div{display:inline-block}.site-author-image{border:2px solid #333;max-width:96px;padding:2px}.site-author-name{color:#f5f5f5;font-weight:400;margin:5px 0 0}.site-description{color:#999;font-size:1em;margin-top:5px}.links-of-author a,.links-of-blogroll{font-size:.8125em}.links-of-author .fa,.links-of-author .fab,.links-of-author .far,.links-of-author .fas{margin-right:2px}.sidebar .sidebar-button:not(:first-child){margin-top:15px}.sidebar .sidebar-button a{border:1px solid #fc6423;border-radius:4px;color:#fc6423;display:inline-block;padding:0 15px}.sidebar .sidebar-button a .fa,.sidebar .sidebar-button a .fab,.sidebar .sidebar-button a .far,.sidebar .sidebar-button a .fas{margin-right:5px}.sidebar .sidebar-button a:hover{background:#fc6423;border:1px solid #fc6423;color:#fff}.sidebar .sidebar-button a:hover .fa,.sidebar .sidebar-button a:hover .fab,.sidebar .sidebar-button a:hover .far,.sidebar .sidebar-button a:hover .fas{color:#fff}.links-of-blogroll-title{font-size:.875em;font-weight:600;margin-top:0}.links-of-blogroll-list{list-style:none;margin:0;padding:0}.sidebar-dimmer{display:none}@media (max-width:991px){.sidebar-dimmer{background:#000;display:block;height:100%;left:0;opacity:0;position:fixed;top:0;transition:visibility .4s,opacity .4s;visibility:hidden;width:100%;z-index:1100}.sidebar-active .sidebar-dimmer{opacity:.7;visibility:visible}}.sidebar-nav{display:none;margin:0;padding-bottom:20px;padding-left:0}.sidebar-nav-active .sidebar-nav{display:block}.sidebar-nav li{border-bottom:1px solid transparent;color:#666;cursor:pointer;display:inline-block;font-size:.875em}.sidebar-nav li.sidebar-nav-overview{margin-left:10px}.sidebar-nav li:hover{color:#f5f5f5}.post-toc .nav .active>a,.sidebar-overview-active .sidebar-nav-overview,.sidebar-toc-active .sidebar-nav-toc{border-bottom-color:#87daff;color:#87daff}.post-toc .nav .active-current>a,.post-toc .nav .active-current>a:hover,.sidebar-overview-active .sidebar-nav-overview:hover,.sidebar-toc-active .sidebar-nav-toc:hover{color:#87daff}.sidebar-panel-container{max-height:var(--sidebar-wrapper-height);overflow-x:hidden;overflow-y:auto}.sidebar-panel{display:none}.sidebar-overview-active .site-overview-wrap{display:flex;flex-direction:column;justify-content:center}.sidebar-toc-active .post-toc-wrap{display:block}.sidebar-toggle{bottom:45px;height:12px;padding:6px 5px;width:14px;background:#222;cursor:pointer;opacity:.8;position:fixed;z-index:1300;left:30px}@media (max-width:991px){.sidebar-toggle{left:20px}}.sidebar-toggle:hover{opacity:1}@media (max-width:991px){.sidebar-toggle{opacity:1}}.sidebar-toggle:hover .toggle-line{background:#87daff}@media (any-hover:hover){body:not(.sidebar-active) .sidebar-toggle:hover .toggle-line:first-child{left:50%;top:2px;transform:rotate(45deg);width:50%}body:not(.sidebar-active) .sidebar-toggle:hover .toggle-line:last-child{left:50%;top:-2px;transform:rotate(-45deg);width:50%}}.sidebar-active .sidebar-toggle .toggle-line:nth-child(2){opacity:0}.sidebar-active .sidebar-toggle .toggle-line:first-child{top:5px;transform:rotate(45deg)}.sidebar-active .sidebar-toggle .toggle-line:last-child{top:-5px;transform:rotate(-45deg)}.post-toc{font-size:.875em}.post-toc ol{list-style:none;margin:0;padding:0 2px 5px 10px;text-align:left}.post-toc ol>ol{padding-left:0}.post-toc ol a{transition:all .2s ease-in-out}.post-toc .nav-item{line-height:1.8;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.back-to-top span,.post-toc .nav .nav-child{display:none}.post-toc .nav .active-current>.nav-child,.post-toc .nav .active-current>.nav-child>.nav-item,.post-toc .nav .active>.nav-child{display:block}.site-state{display:flex;flex-wrap:wrap;justify-content:center;line-height:1.4}.site-state-item{padding:0 15px}.site-state-item a{border-bottom:0;display:block}.site-state-item-count{display:block;font-size:1.25em;font-weight:600}.footer,.site-state-item-name{color:inherit;font-size:.875em}.footer{color:#999}.footer.footer-fixed{bottom:0;left:0;position:absolute;right:0}.footer-inner{box-sizing:border-box;display:flex;flex-direction:column;justify-content:center;margin:0 auto;width:700px}@media (min-width:1200px){.footer-inner{width:800px}}@media (min-width:1600px){.footer-inner{width:900px}}.use-motion .footer{opacity:0}.languages{display:inline-block;font-size:1.125em;position:relative}.languages .lang-select-label span{margin:0 .5em}.languages .lang-select{height:100%;left:0;opacity:0;position:absolute;top:0;width:100%}.with-love{color:gray;display:inline-block;margin:0 5px}.back-to-top{font-size:12px;bottom:-100px;box-sizing:border-box;color:#fff;padding:0 6px;transition:bottom .2s ease-in-out;background:#222;cursor:pointer;opacity:.8;position:fixed;z-index:1300;left:30px;width:24px}@media (max-width:991px){.back-to-top{left:20px}}.back-to-top:hover{opacity:1;color:#87daff}@media (max-width:991px){.back-to-top{opacity:1}}.back-to-top.back-to-top-on{bottom:19px}.noscript-warning{background-color:#f55;color:#fff;font-family:sans-serif;font-size:1rem;font-weight:700;left:0;position:fixed;text-align:center;top:0;width:100%;z-index:1500}.rtl.post-body a,.rtl.post-body h1,.rtl.post-body h2,.rtl.post-body h3,.rtl.post-body h4,.rtl.post-body h5,.rtl.post-body h6,.rtl.post-body li,.rtl.post-body ol,.rtl.post-body p,.rtl.post-body ul{direction:rtl;font-family:UKIJ Ekran}.rtl.post-title{font-family:UKIJ Ekran}.use-motion .collection-header,.use-motion .comments,.use-motion .pagination,.use-motion .post-block,.use-motion .post-body,.use-motion .post-header{visibility:hidden}.posts-collapse .post-content{margin-bottom:35px;margin-left:35px;position:relative}@media (max-width:767px){.posts-collapse .post-content{margin-left:0;margin-right:0}}.posts-collapse .post-content .collection-title{font-size:1.125em;position:relative}.posts-collapse .post-content .collection-title::before{background:#999;border:1px solid #fff;margin-left:-6px;margin-top:-4px;position:absolute;top:50%;border-radius:50%;content:' ';height:10px;width:10px}.posts-collapse .post-content .collection-year{font-size:1.5em;font-weight:700;margin:60px 0;position:relative}.posts-collapse .post-content .collection-year::before{background:#bbb;margin-left:-4px;margin-top:-4px;position:absolute;top:50%;border-radius:50%;content:' ';height:8px;width:8px}.posts-collapse .post-content .collection-header{display:block;margin-left:20px}.posts-collapse .post-content .collection-header small{color:#bbb;margin-left:5px}.posts-collapse .post-content .post-header{border-bottom:1px dashed #ccc;margin:30px 2px 0;padding-left:15px;position:relative;transition:border .2s ease-in-out}.posts-collapse .post-content .post-header::before{background:#bbb;border:1px solid #fff;left:-6px;position:absolute;top:.75em;transition:background .2s ease-in-out;border-radius:50%;content:' ';height:6px;width:6px}.posts-collapse .post-content .post-header:hover{border-bottom-color:#666}.posts-collapse .post-content .post-header:hover::before{background:#222}.posts-collapse .post-content .post-meta-container{display:inline;font-size:.75em;margin-right:10px}.posts-collapse .post-content .post-title,ul.breadcrumb li{display:inline}.posts-collapse .post-content .post-title a{border-bottom:0;color:var(--link-color)}.posts-collapse .post-content .post-title .fa-external-link-alt{font-size:.875em;margin-left:5px}.posts-collapse .post-content::before{background:#f5f5f5;content:' ';height:100%;margin-left:-2px;position:absolute;top:1.25em;width:4px}.post-body{font-family:Lato,'PingFang SC','Microsoft YaHei',sans-serif;overflow-wrap:break-word}@media (min-width:1200px){.post-body{font-size:1.125em}}@media (min-width:992px){.post-body{text-align:justify}}@media (max-width:991px){.post-body{text-align:justify}}.post-body h1 .header-anchor,.post-body h1 .headerlink,.post-body h2 .header-anchor,.post-body h2 .headerlink,.post-body h3 .header-anchor,.post-body h3 .headerlink,.post-body h4 .header-anchor,.post-body h4 .headerlink,.post-body h5 .header-anchor,.post-body h5 .headerlink,.post-body h6 .header-anchor,.post-body h6 .headerlink{border-bottom-style:none;color:inherit;float:right;font-size:.875em;margin-left:10px;opacity:0}.post-body h1 .header-anchor::before,.post-body h1 .headerlink::before,.post-body h2 .header-anchor::before,.post-body h2 .headerlink::before,.post-body h3 .header-anchor::before,.post-body h3 .headerlink::before,.post-body h4 .header-anchor::before,.post-body h4 .headerlink::before,.post-body h5 .header-anchor::before,.post-body h5 .headerlink::before,.post-body h6 .header-anchor::before,.post-body h6 .headerlink::before{content:'\f0c1';font-family:'Font Awesome 5 Free';font-weight:900}.post-body h1:hover .header-anchor,.post-body h1:hover .headerlink,.post-body h2:hover .header-anchor,.post-body h2:hover .headerlink,.post-body h3:hover .header-anchor,.post-body h3:hover .headerlink,.post-body h4:hover .header-anchor,.post-body h4:hover .headerlink,.post-body h5:hover .header-anchor,.post-body h5:hover .headerlink,.post-body h6:hover .header-anchor,.post-body h6:hover .headerlink{opacity:.5}.post-body h1:hover .header-anchor:hover,.post-body h1:hover .headerlink:hover,.post-body h2:hover .header-anchor:hover,.post-body h2:hover .headerlink:hover,.post-body h3:hover .header-anchor:hover,.post-body h3:hover .headerlink:hover,.post-body h4:hover .header-anchor:hover,.post-body h4:hover .headerlink:hover,.post-body h5:hover .header-anchor:hover,.post-body h5:hover .headerlink:hover,.post-body h6:hover .header-anchor:hover,.post-body h6:hover .headerlink:hover{opacity:1}.post-body .exturl .fa{font-size:.875em;margin-left:4px}.post-body .figure .caption,.post-body .image-caption{color:#999;font-size:.875em;font-weight:700;line-height:1;margin:-20px auto 15px;text-align:center}.post-body embed,.post-body iframe,.post-body img,.post-body video{margin-bottom:20px}.post-body .video-container{height:0;margin-bottom:20px;overflow:hidden;padding-top:75%;position:relative;width:100%}.post-body .video-container embed,.post-body .video-container iframe,.post-body .video-container object{height:100%;left:0;margin:0;position:absolute;top:0;width:100%}.post-gallery{display:flex;min-height:200px}.post-gallery .post-gallery-image{flex:1}.post-gallery .post-gallery-image:not(:first-child){clip-path:polygon(40px 0,100% 0,100% 100%,0 100%);margin-left:-20px}.post-gallery .post-gallery-image:not(:last-child){margin-right:-20px}.post-gallery .post-gallery-image img{height:100%;object-fit:cover;opacity:1;width:100%}.posts-expand .post-gallery{margin-bottom:60px}.posts-collapse .post-gallery{margin:15px 0}.posts-expand .post-header{font-size:1.125em;text-align:center}.posts-expand .post-title{font-size:1.5em;font-weight:400;margin:initial;overflow-wrap:break-word}.posts-expand .post-title-link{border-bottom:0;color:var(--link-color);display:inline-block;position:relative}.posts-expand .post-title-link::before{background:var(--link-color);bottom:0;content:'';height:2px;left:0;position:absolute;transform:scaleX(0);transition:transform .2s ease-in-out;width:100%}.posts-expand .post-title-link:hover::before{transform:scaleX(1)}.posts-expand .post-title-link .fa-external-link-alt{font-size:.875em;margin-left:5px}.post-sticky-flag{display:inline-block;margin-right:8px;transform:rotate(30deg)}.posts-expand .post-meta-container{color:#999;font-family:Lato,'PingFang SC','Microsoft YaHei',sans-serif;font-size:.75em;margin-top:3px}.posts-expand .post-meta-container .post-description{font-size:.875em;margin-top:2px}.posts-expand .post-meta-container time{border-bottom:1px dashed #999;cursor:pointer}.post-meta{display:flex;flex-wrap:wrap;justify-content:center}.post-meta-item:not(:first-child)::before{content:'|';margin:0 .5em}.post-meta-item-icon{margin-right:3px}@media (max-width:991px){.post-meta-item-text{display:none}}.post-nav{border-top:1px solid #eee;display:flex;gap:30px;justify-content:space-between;margin-top:1em;padding:10px 5px 0}.post-nav-item{flex:1}.post-nav-item a{border-bottom:0;display:block;font-size:.875em;line-height:1.6}.post-nav-item a:active{top:2px}.post-nav-item .fa{font-size:.75em}.post-nav-item:first-child .fa{margin-right:5px}.post-nav-item:last-child{text-align:right}.post-nav-item:last-child .fa{margin-left:5px}.post-footer{display:flex;flex-direction:column;justify-content:center}.post-eof{background:#ccc;height:1px;margin:80px auto 60px;width:8%}.post-block:last-of-type .post-eof{display:none}.post-tags{margin-top:40px;text-align:center}.post-tags a{display:inline-block;font-size:.8125em}.post-tags a:not(:last-child){margin-right:10px}.post-widgets{border-top:1px solid #eee;margin-top:15px;text-align:center}.wp_rating{height:20px;line-height:20px;margin-top:10px;padding-top:6px;text-align:center}.social-like{display:flex;font-size:.875em;justify-content:center;text-align:center}.reward-container{margin:1em 0 0;padding:1em 0;text-align:center}.reward-container button{background:0 0;border:2px solid #87daff;border-radius:2px;color:#87daff;cursor:pointer;line-height:2;outline:0;padding:0 15px;transition:all .2s ease-in-out;vertical-align:text-top}.reward-container button:hover{background:#87daff;border:2px solid transparent;color:#fff}.post-reward{display:none;padding-top:20px}.post-reward div span,.post-reward.active{display:block}.post-reward img{display:inline-block;margin:.8em 2em 0;max-width:100%;width:180px}.category-all-page .category-all-title,.tag-cloud{text-align:center}.category-all-page .category-all{margin-top:20px}.category-all-page .category-list{list-style:none;margin:0;padding:0}.category-all-page .category-list-item{margin:5px 10px}.category-all-page .category-list-count{color:#bbb}.category-all-page .category-list-count::before{content:' ('}.category-all-page .category-list-count::after{content:') '}.category-all-page .category-list-child{padding-left:10px}.event-list hr{background:#222;margin:20px 0 45px}.event-list hr::after{background:#222;color:#fff;content:'NOW';display:inline-block;font-weight:700;padding:0 5px}.event-list .event{--event-background:#222;--event-foreground:#bbb;--event-title:#fff;background:var(--event-background);padding:15px}.event-list .event .event-summary{border-bottom:0;color:var(--event-title);margin:0;padding:0 0 0 35px;position:relative}.event-list .event .event-summary::before{animation:dot-flash 1s alternate infinite ease-in-out;background:var(--event-title);left:0;margin-top:-6px;position:absolute;top:50%;border-radius:50%;content:' ';height:12px;width:12px}.event-list .event:nth-of-type(odd) .event-summary::before{animation-delay:.5s}.event-list .event:not(:last-child){margin-bottom:20px}.event-list .event .event-relative-time{color:var(--event-foreground);display:inline-block;font-size:12px;font-weight:400;padding-left:12px}.event-list .event .event-details{color:var(--event-foreground);display:block;line-height:18px;padding:6px 0 6px 35px}.event-list .event .event-details::before{color:var(--event-foreground);display:inline-block;margin-right:9px;width:14px;font-family:'Font Awesome 5 Free';font-weight:900}.event-list .event .event-details.event-location::before{content:'\f041'}.event-list .event .event-details.event-duration::before{content:'\f017'}.event-list .event .event-details.event-description::before{content:'\f024'}.event-list .event-past{--event-background:#f5f5f5;--event-foreground:#999;--event-title:#222}ul.breadcrumb{font-size:.75em;list-style:none;margin:1em 0;padding:0 2em;text-align:center}ul.breadcrumb li:not(:first-child)::before{content:'/\00a0';font-weight:400;padding:.5em}ul.breadcrumb li:last-child{font-weight:700}.tag-cloud a{display:inline-block;margin:10px}.tag-cloud-0{border-bottom-color:#aaa;color:#aaa}.tag-cloud-1{border-bottom-color:#9a9a9a;color:#9a9a9a}.tag-cloud-2{border-bottom-color:#8b8b8b;color:#8b8b8b}.tag-cloud-3{border-bottom-color:#7c7c7c;color:#7c7c7c}.tag-cloud-4{border-bottom-color:#6c6c6c;color:#6c6c6c}.tag-cloud-5{border-bottom-color:#5d5d5d;color:#5d5d5d}.tag-cloud-6{border-bottom-color:#4e4e4e;color:#4e4e4e}.tag-cloud-7{border-bottom-color:#3e3e3e;color:#3e3e3e}.tag-cloud-8{border-bottom-color:#2f2f2f;color:#2f2f2f}.tag-cloud-9{border-bottom-color:#202020;color:#202020}.tag-cloud-10{border-bottom-color:#111;color:#111}@media (prefers-color-scheme:dark){.tag-cloud-0{border-bottom-color:#555;color:#555}.tag-cloud-1{border-bottom-color:#646464;color:#646464}.tag-cloud-2{border-bottom-color:#737373;color:#737373}.tag-cloud-3{border-bottom-color:#828282;color:#828282}.tag-cloud-4{border-bottom-color:#929292;color:#929292}.tag-cloud-5{border-bottom-color:#a1a1a1;color:#a1a1a1}.tag-cloud-6{border-bottom-color:#b0b0b0;color:#b0b0b0}.tag-cloud-7{border-bottom-color:silver;color:silver}.tag-cloud-8{border-bottom-color:#cfcfcf;color:#cfcfcf}.tag-cloud-9{border-bottom-color:#dedede;color:#dedede}.tag-cloud-10{border-bottom-color:#eee;color:#eee}}.search-active{overflow:hidden}.search-pop-overlay{background:0 0;display:flex;height:100%;left:0;position:fixed;top:0;transition:visibility .4s,background .4s;visibility:hidden;width:100%;z-index:1400}.search-active .search-pop-overlay{background:rgba(0,0,0,.3);visibility:visible}.search-popup{background:var(--card-bg-color);border-radius:5px;height:80%;margin:auto;transform:scale(0);transition:transform .4s;width:700px}.search-active .search-popup{transform:scale(1)}@media (max-width:767px){.search-popup{border-radius:0;height:100%;width:100%}}.search-popup .popup-btn-close,.search-popup .search-icon{color:#999;font-size:18px;padding:0 10px}.search-popup .popup-btn-close{cursor:pointer}.search-popup .popup-btn-close:hover .fa{color:#222}.search-popup .search-header{background:#eee;border-top-left-radius:5px;border-top-right-radius:5px;display:flex;padding:5px}.search-popup input.search-input{background:0 0;border:0;outline:0;width:100%}.search-popup input.search-input::-webkit-search-cancel-button{display:none}.search-popup .search-result-container{height:calc(100% - 55px);overflow:auto;padding:5px 25px}.search-popup .search-result-container hr{margin:5px 0 10px}.search-popup .search-result-container hr:first-child{display:none}.search-popup .search-result-list{margin:0 5px;padding:0}.search-popup a.search-result-title{font-weight:700}.search-popup p.search-result{border-bottom:1px dashed #ccc;padding:5px 0}.search-popup .search-input-container{flex-grow:1;padding:2px}.search-popup .no-result{display:flex}.search-popup .search-result-list{width:100%}.search-popup .search-result-icon{color:#ccc;margin:auto}mark.search-keyword{background:0 0;border-bottom:1px dashed #ff2a2a;color:#ff2a2a;font-weight:700}.use-motion .animated{animation-fill-mode:none;visibility:inherit}.use-motion .sidebar .animated{animation-fill-mode:both}.btn{padding:0 10px}.headband{display:none}.pagination{text-align:left}@media (max-width:767px){.pagination{margin:80px 0 0;text-align:center}}.footer{background:var(--content-bg-color);color:var(--text-color);padding:10px 0}.footer-inner{text-align:left}@media (max-width:767px){.footer-inner{text-align:center}}.header-inner{align-items:center;display:flex;padding:20px 0}@media (max-width:767px){.header-inner{display:block;padding:10px 0}}.site-meta{line-height:normal}.site-meta .brand{padding:2px 1px}@media (max-width:767px){.site-meta .brand{display:block}}.site-meta .site-title{font-weight:bolder}.logo-line{background:var(--brand-color);display:block;height:2px;margin:0 auto;width:75%}@media (max-width:767px){.logo-line{display:none}}.use-motion .logo-line:first-of-type{transform:scaleX(0);transform-origin:left}.use-motion .logo-line:last-of-type{transform:scaleX(0);transform-origin:right}.site-subtitle{display:none}.site-nav{flex-grow:1}@media (max-width:767px){.site-nav{padding:10px 10px 0}}.menu{padding:0}.menu .menu-item{margin:0}@media (max-width:767px){.menu .menu-item{margin-top:5px}}.menu .menu-item a{border-radius:2px;padding:0 10px;transition-property:background}@media (max-width:767px){.menu .menu-item a{text-align:left}}.menu .menu-item .badge{background:#fff;border-radius:10px;color:#555;padding:1px 4px;text-shadow:1px 1px 0 rgba(0,0,0,.1)}.posts-expand.index .post-header{text-align:left}@media (max-width:767px){.posts-expand.index .post-header{text-align:center}}.posts-expand.index .post-meta-container{margin-top:5px}.posts-expand.index .post-meta{justify-content:flex-start}@media (max-width:767px){.posts-expand.index .post-meta{justify-content:center}}.posts-expand .post-eof{display:none}.posts-expand .post-block:not(:first-child){margin-top:120px}.posts-expand .post-header{margin-bottom:20px}.post-button,.posts-expand .post-tags{text-align:left}.posts-expand .post-tags a{background:var(--content-bg-color);border-bottom:0;padding:1px 5px}.posts-expand .post-tags a:hover{background:var(--menu-item-bg-color)}.posts-expand .post-nav{margin-top:40px}.post-button{margin-top:20px}.post-button .btn{background:0 0;border:0;border-bottom:2px solid var(--btn-default-border-color);padding:0;transition-property:border}.post-button .btn:hover{border-bottom-color:var(--btn-default-hover-border-color)}.main-inner{margin:0 auto;width:700px}@media (min-width:1200px){.main-inner{width:800px}}@media (min-width:1600px){.main-inner{width:900px}}@media (max-width:767px){.main-inner{padding-left:20px;padding-right:20px}.footer-inner,.header-inner,.main-inner{width:auto}}.main-inner{padding-bottom:80px}.post-block:first-of-type{padding-top:80px}@media (max-width:767px){.post-block:first-of-type{padding-top:60px}}@media (min-width:992px){.sidebar-active{padding-left:320px}}.sidebar{left:-320px;background:#222;bottom:0;box-shadow:inset 0 2px 6px #000;position:fixed;top:0;transition:all .2s ease-out;width:320px;z-index:1200}.sidebar-active .sidebar{left:0}.sidebar a{border-bottom-color:#555;color:#999}.sidebar a:hover{border-bottom-color:#eee;color:#eee}.links-of-author:not(:first-child){margin-top:15px}.links-of-author a{border-bottom-color:#555;display:inline-block;margin-bottom:10px;margin-right:10px;vertical-align:middle}.links-of-author a::before{background:#3308ff;display:inline-block;margin-right:3px;transform:translateY(-2px);border-radius:50%;content:' ';height:4px;width:4px}.links-of-blogroll-item{padding:2px 10px}.links-of-blogroll-item a{box-sizing:border-box;display:inline-block;max-width:280px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.sub-menu{margin:10px 0}.sub-menu .menu-item{display:inline-block}</style><noscript>
+    
+  </noscript>
+<script>function loadCss(l){var d=document,h=d.head,s=d.createElement('link');s.rel='stylesheet';s.href=l;!function e(f){if (d.body)return f();setTimeout(function(){e(f)})}(function(){h.appendChild(s);});}loadCss('/style.css');loadCss('https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@5.15.3/css/all.min.css');</script><noscript><link rel="stylesheet" href="/style.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@5.15.3/css/all.min.css"></noscript></head>
+
+<body itemscope="" itemtype="http://schema.org/WebPage">
+  <div class="headband"></div>
+
+  <main class="main">
+    <header class="header" itemscope="" itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏" role="button">
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <i class="logo-line"></i>
+      <h1 class="site-title">疯狂的茶几</h1>
+      <i class="logo-line"></i>
+    </a>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  <ul class="main-menu menu">
+        <li class="menu-item menu-item-home"><a href="/" rel="section"><i class="home fa-fw"></i>首页</a></li>
+        <li class="menu-item menu-item-about"><a href="/about/" rel="section"><i class="user fa-fw"></i>关于</a></li>
+        <li class="menu-item menu-item-tags"><a href="/tags/" rel="section"><i class="tags fa-fw"></i>标签</a></li>
+        <li class="menu-item menu-item-categories"><a href="/categories/" rel="section"><i class="th fa-fw"></i>分类</a></li>
+        <li class="menu-item menu-item-archives"><a href="/archives/" rel="section"><i class="archive fa-fw"></i>归档</a></li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>搜索
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup"><div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocapitalize="off" maxlength="80" placeholder="搜索..." spellcheck="false" type="search" class="search-input">
+  </div>
+  <span class="popup-btn-close" role="button">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div class="search-result-container no-result">
+  <div class="search-result-icon">
+    <i class="fa fa-spinner fa-pulse fa-5x"></i>
+  </div>
+</div>
+
+    </div>
+  </div>
+
+</div>
+        
+  
+  <div class="toggle sidebar-toggle" role="button">
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+  </div>
+
+  <aside class="sidebar">
+
+    <div class="sidebar-inner sidebar-nav-active sidebar-toc-active">
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <div class="sidebar-panel-container">
+        <!--noindex-->
+        <div class="post-toc-wrap sidebar-panel">
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E8%83%8C%E6%99%AF"><span class="nav-number">1.</span> <span class="nav-text">背景</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%A6%82%E5%BF%B5"><span class="nav-number">2.</span> <span class="nav-text">概念</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%88%86%E6%9E%90%E8%BF%87%E7%A8%8B"><span class="nav-number">3.</span> <span class="nav-text">分析过程</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E7%90%86%E8%A7%A3%E4%B8%80%E4%BA%9B%E5%8E%9F%E7%90%86"><span class="nav-number">3.1.</span> <span class="nav-text">理解一些原理</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E7%B3%BB%E7%BB%9F%E5%AE%B9%E9%87%8F%E8%AF%84%E4%BC%B0%E6%97%B6%E6%9C%BA"><span class="nav-number">3.2.</span> <span class="nav-text">系统容量评估时机</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E8%AF%84%E4%BC%B0%E7%9A%84%E6%AD%A5%E9%AA%A4"><span class="nav-number">3.3.</span> <span class="nav-text">评估的步骤</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#1%E3%80%81%E5%88%86%E6%9E%90%E6%97%A5%E6%80%BB%E8%AE%BF%E9%97%AE%E9%87%8F"><span class="nav-number">3.3.1.</span> <span class="nav-text">1、分析日总访问量</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#2%E3%80%81%E8%AF%84%E4%BC%B0%E5%B9%B3%E5%9D%87%E8%AE%BF%E9%97%AE%E9%87%8FQPS"><span class="nav-number">3.3.2.</span> <span class="nav-text">2、评估平均访问量QPS</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#3%E3%80%81%E8%AF%84%E4%BC%B0%E9%AB%98%E5%B3%B0%E5%8C%BA%E9%97%B4%E7%9A%84QPS"><span class="nav-number">3.3.3.</span> <span class="nav-text">3、评估高峰区间的QPS</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#4%E3%80%81%E8%AF%84%E4%BC%B0%E5%8D%95%E5%AE%9E%E4%BE%8B%E6%9E%81%E9%99%90%E6%89%BF%E5%8F%97%E7%9A%84QPS"><span class="nav-number">3.3.4.</span> <span class="nav-text">4、评估单实例极限承受的QPS</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#5%E3%80%81%E6%A0%B9%E6%8D%AE%E7%BA%BF%E4%B8%8A%E5%86%97%E4%BD%99%E5%BA%A6%E6%9C%80%E7%BB%88%E7%A1%AE%E8%AE%A4"><span class="nav-number">3.3.5.</span> <span class="nav-text">5、根据线上冗余度最终确认</span></a></li></ol></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E6%A1%88%E4%BE%8B%E5%88%86%E6%9E%90"><span class="nav-number">3.4.</span> <span class="nav-text">案例分析</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%80%BB%E7%BB%93"><span class="nav-number">4.</span> <span class="nav-text">总结</span></a></li></ol></div>
+        </div>
+        <!--/noindex-->
+
+        <div class="site-overview-wrap sidebar-panel">
+          <div class="site-author site-overview-item animated" itemprop="author" itemscope="" itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="疯狂的茶几" src="/uploads/avatar.jpg">
+  <p class="site-author-name" itemprop="name">疯狂的茶几</p>
+  <div class="site-description" itemprop="description">懒人一个</div>
+</div>
+<div class="site-state-wrap site-overview-item animated">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">51</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+          
+        <span class="site-state-item-count">50</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">43</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author site-overview-item animated">
+      <span class="links-of-author-item">
+        <a href="https://github.com/tomhjx" title="GitHub → https://github.com/tomhjx" rel="noopener" target="_blank"><i class="github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="mailto:tom_hejiaxi@163.com" title="E-Mail → mailto:tom_hejiaxi@163.com" rel="noopener" target="_blank"><i class="envelope fa-fw"></i>E-Mail</a>
+      </span>
+  </div>
+
+
+
+        </div>
+      </div>
+    </div>
+  </aside>
+  <div class="sidebar-dimmer"></div>
+
+
+    </header>
+
+    
+  <div class="back-to-top" role="button" aria-label="返回顶部">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+  <a href="https://github.com/tomhjx" class="github-corner" title="Follow me on GitHub" aria-label="Follow me on GitHub" rel="noopener" target="_blank"><svg width="80" height="80" viewBox="0 0 250 250" aria-hidden="true"><path d="M0,0 L115,115 L130,115 L142,142 L250,250 L250,0 Z"></path><path d="M128.3,109.0 C113.8,99.7 119.0,89.6 119.0,89.6 C122.0,82.7 120.5,78.6 120.5,78.6 C119.2,72.0 123.4,76.3 123.4,76.3 C127.3,80.9 125.5,87.3 125.5,87.3 C122.9,97.6 130.6,101.9 134.4,103.2" fill="currentColor" style="transform-origin: 130px 106px;" class="octo-arm"></path><path d="M115.0,115.0 C114.9,115.1 118.7,116.5 119.8,115.4 L133.7,101.6 C136.9,99.2 139.9,98.4 142.2,98.6 C133.8,88.0 127.5,74.4 143.8,58.0 C148.5,53.4 154.0,51.2 159.7,51.0 C160.3,49.4 163.2,43.6 171.4,40.1 C171.4,40.1 176.1,42.5 178.8,56.2 C183.1,58.6 187.2,61.8 190.9,65.4 C194.5,69.0 197.7,73.2 200.1,77.6 C213.8,80.2 216.3,84.9 216.3,84.9 C212.7,93.1 206.9,96.0 205.4,96.6 C205.1,102.4 203.0,107.8 198.3,112.5 C181.9,128.9 168.3,122.5 157.7,114.1 C157.9,116.9 156.7,120.9 152.7,124.9 L141.0,136.5 C139.8,137.7 141.6,141.9 141.8,141.8 Z" fill="currentColor" class="octo-body"></path></svg></a>
+
+<noscript>
+  <div class="noscript-warning">Theme NexT works best with JavaScript enabled</div>
+</noscript>
+
+
+    <div class="main-inner post posts-expand">
+
+
+  
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope="" itemtype="http://schema.org/Article" class="post-content" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://www.tomhjx.top/2021/06/05/%E8%AE%BE%E8%AE%A1%E5%AE%B9%E9%87%8F%EF%BC%8C%E5%88%B0%E5%BA%95%E6%9C%89%E5%A4%9A%E9%87%8D%E8%A6%81/">
+
+    <span hidden="" itemprop="author" itemscope="" itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/uploads/avatar.jpg">
+      <meta itemprop="name" content="疯狂的茶几">
+      <meta itemprop="description" content="懒人一个">
+    </span>
+
+    <span hidden="" itemprop="publisher" itemscope="" itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="疯狂的茶几">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          设计容量，到底有多重要
+        </h1>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">发表于</span>
+
+      <time title="创建时间：2021-06-05 09:55:17" itemprop="dateCreated datePublished" datetime="2021-06-05T09:55:17+08:00">2021-06-05</time>
+    </span>
+      <span class="post-meta-item">
+        <span class="post-meta-item-icon">
+          <i class="far fa-calendar-check"></i>
+        </span>
+        <span class="post-meta-item-text">更新于</span>
+        <time title="修改时间：2021-07-17 18:27:26" itemprop="dateModified" datetime="2021-07-17T18:27:26+08:00">2021-07-17</time>
+      </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-folder"></i>
+      </span>
+      <span class="post-meta-item-text">分类于</span>
+        <span itemprop="about" itemscope="" itemtype="http://schema.org/Thing">
+          <a href="/categories/%E8%BF%90%E7%BB%B4/" itemprop="url" rel="index"><span itemprop="name">运维</span></a>
+        </span>
+          ，
+        <span itemprop="about" itemscope="" itemtype="http://schema.org/Thing">
+          <a href="/categories/%E8%BF%90%E7%BB%B4/%E5%BA%A6%E9%87%8F/" itemprop="url" rel="index"><span itemprop="name">度量</span></a>
+        </span>
+    </span>
+
+  
+    <span class="post-meta-item" title="本文字数">
+      <span class="post-meta-item-icon">
+        <i class="far fa-file-word"></i>
+      </span>
+      <span class="post-meta-item-text">本文字数：</span>
+      <span>3.8k</span>
+    </span>
+    <span class="post-meta-item" title="阅读时长">
+      <span class="post-meta-item-icon">
+        <i class="far fa-clock"></i>
+      </span>
+      <span class="post-meta-item-text">阅读时长 ≈</span>
+      <span>3 分钟</span>
+    </span>
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+        <h3 id="背景"><a href="#背景" class="headerlink" title="背景"></a>背景</h3><p>单位每年都会举行运动会，有一个2000m长跑的项目，大约每年报名人员为男选手40人，女选手20人，只有一条橡胶跑道。一次比赛10人齐跑，所以至少需要6场比赛。</p>
+<p>2000米的完成时间要求是20分钟，超过20分钟不计数，所以比赛耗时我们计算为20分钟，加上比赛前的动员组织，比赛后的清场，我们假定每场比赛耗时30分钟。</p>
+<p>现在我们预估下耗时：</p>
+<p>1、60人/10人每场 = 6场，至少需要举行6场</p>
+<p>2、总耗时 = 6场 * 0.5h = 3h</p>
+<p>所以每年把这个比赛安排在下午3点到6点，是最后一个比赛项目，晚上7点举行颁奖晚会。这个预估容量也算合理。</p>
+<p>但是今年比较特别，取消了4000米的长跑，所以2000米报名人员激增50人。时间还是下午3点到6点，</p>
+<p>这个就有问题了，最后为了保证晚会的正常进行，一半的人员的比赛时间推迟到另外一周的周末，搞得怨声四起，大骂举办的行政部门不讲武德。</p>
+<p>这个是我们单位真实的故事，这就是设计容量，当你的业务场景的容量发生了变化时候，没有预估到他的变化，以及变化可能产生的影响，没有按照这个影响及时的做调整</p>
+<p>（比如将比赛时间提前，拉长整个比赛的过程时间，或者增加比赛跑到，同时进行两场比赛），就会造成灾难。</p>
+<h3 id="概念"><a href="#概念" class="headerlink" title="概念"></a>概念</h3><p>何为设计容量，从技术上说就是运用一些策略对系统容量进行预估的过程。容量设计是架构师必备的技能之一。</p>
+<p>他要求我们分析系统设计容量要求，尽可能给出具体数据描述的：数据量、并发量、带宽、注册用户规模、活跃用户规模、在线用户规模、消息长度，图片大小、网盘空间容量，内存CPU容量等。</p>
+<p>下面的内容，我们以 <strong>并发</strong> 为例子，看看看具体的分析过程。</p>
+<h3 id="分析过程"><a href="#分析过程" class="headerlink" title="分析过程"></a>分析过程</h3><h4 id="理解一些原理"><a href="#理解一些原理" class="headerlink" title="理解一些原理"></a>理解一些原理</h4><p>TPS（Transactions Per Second）：每秒事务数</p>
+<p>QPS（Query Per Second）：每秒请求数，QPS其实是衡量吞吐量的一个常用指标，就是说服务器在一秒的时间内处理了多少个请求。</p>
+<p>并发数：并发数是指系统同时能处理的请求数量，这个也是反应了系统的负载能力。</p>
+<p>峰值QPS计算：</p>
+<p>1、原理：每天80%的访问集中在20%的时间里，这20%时间叫做峰值时间</p>
+<p>2、公式：( 总PV数 * 80% ) / ( 每天秒数 * 20% ) = 峰值时间每秒请求数(QPS)</p>
+<p>PV（Page View）：页面访问量，即页面浏览量或点击量，用户每次刷新即被计算一次</p>
+<p>UV（Unique Visitor）：独立访客，统计1天内访问某站点的用户数(以cookie为依据)</p>
+<p>吐吞量：吞吐量是指系统在单位时间内处理请求的数量</p>
+<p>响应时间（RT）：响应时间是指系统对请求作出响应的时间，一般取平均响应时间</p>
+<p>QPS（每秒查询数）、TPS（每秒事务数）是吞吐量的常用量化指标，另外还有HPS（每秒HTTP请求数）。</p>
+<p>QPS（TPS）、并发数、响应时间它们三者之间的关系是：</p>
+<p>1、QPS（TPS）= 并发数 / 平均响应时间</p>
+<p>2、并发数 = QPS * 平均响应时间</p>
+<h4 id="系统容量评估时机"><a href="#系统容量评估时机" class="headerlink" title="系统容量评估时机"></a>系统容量评估时机</h4><p>主要在三种业务场景下需要及时考虑对系统容量进行评估。</p>
+<p>1、临时的流量变化：比如 618、双11，新年大促搞活动等场景，预估我们的流量会大涨，甚至到原来的数倍。这时候要做好应对的措施。</p>
+<p>2、初始系统容量评估：假设我们开发了某个系统，这个系统初始上线，我们预估他的容量和负载会是多少。</p>
+<p>3、容量基数的变化：比如某个系统，他的功能模块越来越多，数据流量越来越大，日活指数越来越高，迎来了第二波的增长曲线。我们原来定好的系统容量渐渐的不满足我们的需求，这时候我们也要重新评估和扩容。</p>
+<p>我们系统容量评估包括数据量、并发量、带宽、CPU、MEMORY、DISK等。以并发量为案例，我们来说明系统容量评估的方法和步骤。</p>
+<h4 id="评估的步骤"><a href="#评估的步骤" class="headerlink" title="评估的步骤"></a>评估的步骤</h4><h5 id="1、分析日总访问量"><a href="#1、分析日总访问量" class="headerlink" title="1、分析日总访问量"></a>1、分析日总访问量</h5><p>分析可能的日访问量，一般系统系统都会提供比较真实的访问量数值，基于此，我们需要评估一个活动的访问量；如果是一个新上线的系统，我们也要评估可能的PV、UV值。</p>
+<p>产品、运营部门也需要给出可能的访问预期值。</p>
+<p>举个例子：</p>
+<p>我们活动期间(9点~10点)会推送2000W的应用消息，假设用户实际点进去查看的比列为1/10，那么这个活动期间(1小时)新增的访问量就有 2000W * 1/10= 200W</p>
+<h5 id="2、评估平均访问量QPS"><a href="#2、评估平均访问量QPS" class="headerlink" title="2、评估平均访问量QPS"></a>2、评估平均访问量QPS</h5><p>QPS是每秒请求量,假设我们一天正常活动时间一般是11个小时多一点,那一天的时间长度以秒为单位:60*60*11 ≈ 4W,&nbsp; 我们再使用日访问时间再去除以4W总时间即可.</p>
+<p>举个例子：</p>
+<p>我们上面说的两个小时的活动时间,实际的总访问量最后确实是200W,</p>
+<p>那么平均访问量QPS为:200W/(60*60)=555.5 QPS.</p>
+<p>一个成熟系统日QPS也可以预估 ,比如 百度首页的日PV数量为 5000W,按照我们说的常规活动时间4W秒算,就是5000W / 4W = 1250 QPS.</p>
+<h5 id="3、评估高峰区间的QPS"><a href="#3、评估高峰区间的QPS" class="headerlink" title="3、评估高峰区间的QPS"></a>3、评估高峰区间的QPS</h5><p>我们在做系统容量规划时，不仅仅是考虑平均QPS，最重要的是要承受住高峰区间的QPS，这个数据可以根据业务流量监控的曲线和28法则来评估,我们来看下具体是怎么做的?</p>
+<p>3.1 业务流量监控的曲线</p>
+<p>以下面这个云系统作为例子：</p>
+<p>日均QPS为2900，业务访问趋势图如下图，我们来对峰值QPS做一下预估</p>
+<p><img src="https://p.tomhjx.top/Fodidb1DJ5EGoNH05Xuzodg59knu"></p>
+<p>从图中可以看出，峰值QPS大概是均值QPS的2.58倍，日均QPS为2900，于是评估出峰值QPS为2900*2.58=7482。</p>
+<p>这种是日常流量情况,如果遇到很特别的业务,比如竞拍\抢订\秒杀情况,流量幅度还是比较大的.</p>
+<p>3.2 使用二八法则计算</p>
+<p>何为二八法则:80%的业务基本都是发生在20%的时间里面,所以有如下:</p>
+<p>峰值QPS公式：( 总PV数 * 80% ) / ( 每天秒数 * 20% ) = 峰值时间每秒请求数(QPS)</p>
+<h5 id="4、评估单实例极限承受的QPS"><a href="#4、评估单实例极限承受的QPS" class="headerlink" title="4、评估单实例极限承受的QPS"></a>4、评估单实例极限承受的QPS</h5><p>可以使用压测(nGrinder 或者 jmeter)方式来获取单个系统实例的QPS极限值,我们团队的标准是当请求响应时间超过2S的时候,已经达到了瓶颈值，并影响使用,需要进行优化和扩容。</p>
+<p>我们在一个系统上线前，一般来说是需要进行压力测试,了解她实际的极限值在哪个地方，以我们上面流量图为例子（日平均QPS为2900，峰值QPS为7500），这个系统的架构可能是这样的：</p>
+<p><img src="https://p.tomhjx.top/FrZsYefbfU6dEpatuSaY4-wj9u5Z"></p>
+<p>1、经由APP和Web的的请求，会经过Nginx均衡到多台Web站点上去。</p>
+<p>2、Web集群会调用并落地到Service集群上</p>
+<p>3、Service集群向数据层请求数据，正常情况下其中90%会落到Cache集群中</p>
+<p>4、Cache集群中不存在（假设10%），会进入DB集群去访问数据库。</p>
+<p>我们通过压测数据发现，web层是瓶颈，tomcat压测单个实例只能支持2500的QPS。</p>
+<p>Cache集群和DB集群足够强悍，能够轻松应对峰值7500的QPS，按比例分别是7500*0.9=6750 和 7500*0.1=750.</p>
+<p>所以我们得到了web单实例极限的QPS是2500。这边需要下调，因为我们不建议让请求响应时长接近2S，最好是1S以内。所以下调至2000。</p>
+<h5 id="5、根据线上冗余度最终确认"><a href="#5、根据线上冗余度最终确认" class="headerlink" title="5、根据线上冗余度最终确认"></a>5、根据线上冗余度最终确认</h5><p>通过上面的计算，我们已经得到了峰值QPS是7500，单个实例能够顺畅承载QPS是2000，那么Web集群中至少有4个实例能够承接这样的请求洪峰。</p>
+<p>除此之外，其他类型的的容量预估，如数据量、带宽、CPU、MEMORY、DISK等都可以采用类似策略。</p>
+<h4 id="案例分析"><a href="#案例分析" class="headerlink" title="案例分析"></a>案例分析</h4><p>结合项目：如何计算图书系统的QPS、峰值QPS、N个实例和并发数</p>
+<p>1、图书预定系统的并发数计算：</p>
+<p>1.1、二八法则定理：80%的业务基本都是发生在20% 的时间里面，如系统有早中晚高峰，历经9个小时（早上10点到晚上19点），9*3600=32400。</p>
+<p>1.2、获取峰值QPS：公式：( 总PV数 * 80% ) / ( 每天秒数 * 20% ) = 峰值时间每秒请求数(QPS)</p>
+<p>即 ( 1500000 * 80% ) / ( 32400 * 20% ) = 600000/6480≈185/秒</p>
+<p>1.3、并发数 = QPS * 平均响应时间 = 0.5*185 = 92.5 ，矫正为100</p>
+<p>1.4、利用343估算法判定 154，向上矫正为200</p>
+<table>
+<thead>
+<tr>
+<th><strong>Pessimism 悲观</strong></th>
+<th>30%</th>
+<th>80</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>Normal 标准</strong></td>
+<td>40%</td>
+<td>100</td>
+</tr>
+<tr>
+<td><strong>Optimism 乐观</strong></td>
+<td>30%</td>
+<td>300</td>
+</tr>
+</tbody></table>
+<p>最后提供给性能测试QA 的测试标准数据是 建议支持并发 200+，QA最终的测试结果是 该并发下响应时间在 50~100ms</p>
+<h3 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h3><p>系统设计容量评估时机：</p>
+<p>1、临时的流量变化：比如 618、双11，新年大促搞活动等场景，预估我们的流量会大涨，甚至到原来的数倍。这时候要做好应对的措施。</p>
+<p>2、初始系统容量评估：假设我们开发了某个系统，这个系统初始上线，我们预估他的容量和负载会是多少。</p>
+<p>3、容量基数的变化：比如某个系统，他的功能模块越来越多，数据流量越来越大，日活指数越来越高，迎来了第二波的增长曲线。我们原来定好的系统容量渐渐的不满足我们的需求，这时候我们也要重新评估和扩容。</p>
+<p>系统设计容量评估的步骤：</p>
+<p>1、分析日总访问量：产品、运营的评估和线上数据的收集</p>
+<p>2、评估日平均访问量QPS：评估运营时间内的平均QPS</p>
+<p>3、评估高峰区间的QPS：流量曲线计算 或 28 法则估算</p>
+<p>4、性能压力测试：评估实例能够承受的极限吞吐量</p>
+<p>5、根据线上冗余度，与实际的差值进行调整，评估出能承载容量的实际结果值</p>
+<p>显然，开头的运动会如果子报名结束后能够根据报名的人数对比，重新做容量设计，提早做好准备，情况就不会那么糟糕。</p>
+<p>码字不易，欢迎<a href="javascript:void(0);">关注</a>，欢迎转载</p>
+<p>作者：<a href="javascript:void(0);">翁智华</a></p>
+<p>出处：<a target="_blank" rel="noopener" href="https://www.cnblogs.com/wzh2010/">https://www.cnblogs.com/wzh2010/</a></p>
+<p>本文采用「<a target="_blank" rel="noopener" href="https://creativecommons.org/licenses/by/4.0">CC BY 4.0</a>」知识共享协议进行许可，转载请注明作者及出处。</p>
+
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/%E8%BD%AC%E8%BD%BD/" rel="tag"># 转载</a>
+              <a href="/tags/%E5%BA%A6%E9%87%8F/" rel="tag"># 度量</a>
+          </div>
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-item">
+                <a href="/2021/04/18/%E6%9C%8D%E5%8A%A1%E5%BA%A6%E9%87%8F/" rel="prev" title="服务度量">
+                  <i class="fa fa-chevron-left"></i> 服务度量
+                </a>
+            </div>
+            <div class="post-nav-item">
+                <a href="/2021/06/20/%E5%A4%A7%E5%AE%B6%E9%83%BD%E5%9C%A8%E5%93%AA%E9%87%8C%E6%89%BE%E6%95%B0%E6%8D%AE/" rel="next" title="大家都在哪里找数据?">
+                  大家都在哪里找数据? <i class="fa fa-chevron-right"></i>
+                </a>
+            </div>
+          </div>
+    </footer>
+  </article>
+</div>
+
+
+
+
+
+
+</div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+
+
+<div class="copyright">
+  © 
+  <span itemprop="copyrightYear">2021</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">疯狂的茶几</span>
+</div>
+<div class="wordcount">
+  <span class="post-meta-item">
+    <span class="post-meta-item-icon">
+      <i class="fa fa-chart-line"></i>
+    </span>
+    <span title="站点总字数">153k</span>
+  </span>
+  <span class="post-meta-item">
+    <span class="post-meta-item-icon">
+      <i class="fa fa-coffee"></i>
+    </span>
+    <span title="站点阅读时长">2:19</span>
+  </span>
+</div>
+
+    </div>
+  </footer>
+
+  
+  <script src="https://cdn.jsdelivr.net/npm/animejs@3.2.1/lib/anime.min.js" integrity="sha256-XL2inqUJaslATFnHdJOi9GfQ60on8Wx1C2H8DYiN1xY=" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@next-theme/pjax@0.5.0/pjax.min.js" integrity="sha256-3NkoLDrmHLTYj7csHIZSr0MHAFTXth7Ua/DDt4MRUAg=" crossorigin="anonymous"></script>
+
+
+  
+
+
+
+
+
+  
+  
+
+
+  
+
+
+
+
+
+
+
+<script src="/bundle.js"></script><script>{&quot;enable&quot;:true,&quot;theme&quot;:&quot;forest&quot;,&quot;js&quot;:{&quot;url&quot;:&quot;https:&#x2F;&#x2F;cdn.jsdelivr.net&#x2F;npm&#x2F;mermaid@8.9.3&#x2F;dist&#x2F;mermaid.min.js&quot;,&quot;integrity&quot;:&quot;sha256-OyJHvRcZHaRR6Ig73ppxF4QXk8HzvfgTprRWkulCkfY&#x3D;&quot;}}</script></body></html>

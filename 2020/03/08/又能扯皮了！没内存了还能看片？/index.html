@@ -1,0 +1,611 @@
+<!DOCTYPE html><html lang="zh-CN"><head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 5.4.0">
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+
+
+
+
+
+
+<script class="next-config" data-name="main" type="application/json">{&quot;hostname&quot;:&quot;www.tomhjx.top&quot;,&quot;root&quot;:&quot;&#x2F;&quot;,&quot;images&quot;:&quot;&#x2F;images&quot;,&quot;scheme&quot;:&quot;Mist&quot;,&quot;version&quot;:&quot;8.5.0&quot;,&quot;exturl&quot;:false,&quot;sidebar&quot;:{&quot;position&quot;:&quot;left&quot;,&quot;display&quot;:&quot;post&quot;,&quot;padding&quot;:18,&quot;offset&quot;:12},&quot;copycode&quot;:false,&quot;bookmark&quot;:{&quot;enable&quot;:false,&quot;color&quot;:&quot;#222&quot;,&quot;save&quot;:&quot;auto&quot;},&quot;fancybox&quot;:false,&quot;mediumzoom&quot;:false,&quot;lazyload&quot;:false,&quot;pangu&quot;:false,&quot;comments&quot;:{&quot;style&quot;:&quot;tabs&quot;,&quot;active&quot;:null,&quot;storage&quot;:true,&quot;lazyload&quot;:false,&quot;nav&quot;:null},&quot;motion&quot;:{&quot;enable&quot;:false,&quot;async&quot;:false,&quot;transition&quot;:{&quot;post_block&quot;:&quot;fadeIn&quot;,&quot;post_header&quot;:&quot;fadeInDown&quot;,&quot;post_body&quot;:&quot;fadeInDown&quot;,&quot;coll_header&quot;:&quot;fadeInLeft&quot;,&quot;sidebar&quot;:&quot;fadeInUp&quot;}},&quot;prism&quot;:false,&quot;i18n&quot;:{&quot;placeholder&quot;:&quot;搜索...&quot;,&quot;empty&quot;:&quot;没有找到任何搜索结果：${query}&quot;,&quot;hits_time&quot;:&quot;找到 ${hits} 个搜索结果（用时 ${time} 毫秒）&quot;,&quot;hits&quot;:&quot;找到 ${hits} 个搜索结果&quot;},&quot;path&quot;:&quot;&#x2F;search.xml&quot;,&quot;localsearch&quot;:{&quot;enable&quot;:true,&quot;trigger&quot;:&quot;auto&quot;,&quot;top_n_per_article&quot;:1,&quot;unescape&quot;:false,&quot;preload&quot;:false}}</script>
+<meta name="description" content="虚拟内存尽管基址寄存器和变址寄存器用来创建地址空间的抽象，但是这有一个其他的问题需要解决：管理软件的膨胀(managing bloatware)。虽然内存的大小增长迅速，但是软件的大小增长的要比内存还要快。在 1980 年的时候，许多大学用一台 4 MB 的 VAX 计算机运行分时操作系统，供十几个用户同时运行。现在微软公司推荐的 64 位 Windows 8 系统至少需要 2 GB 内存，而许多">
+<meta property="og:type" content="article">
+<meta property="og:title" content="又能扯皮了！没内存了还能看片？">
+<meta property="og:url" content="https://www.tomhjx.top/2020/03/08/%E5%8F%88%E8%83%BD%E6%89%AF%E7%9A%AE%E4%BA%86%EF%BC%81%E6%B2%A1%E5%86%85%E5%AD%98%E4%BA%86%E8%BF%98%E8%83%BD%E7%9C%8B%E7%89%87%EF%BC%9F/index.html">
+<meta property="og:site_name" content="疯狂的茶几">
+<meta property="og:description" content="虚拟内存尽管基址寄存器和变址寄存器用来创建地址空间的抽象，但是这有一个其他的问题需要解决：管理软件的膨胀(managing bloatware)。虽然内存的大小增长迅速，但是软件的大小增长的要比内存还要快。在 1980 年的时候，许多大学用一台 4 MB 的 VAX 计算机运行分时操作系统，供十几个用户同时运行。现在微软公司推荐的 64 位 Windows 8 系统至少需要 2 GB 内存，而许多">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://user-gold-cdn.xitu.io/2020/3/6/170ae7de9842f303?imageView2/0/w/1280/h/960/format/webp/ignore-error/1">
+<meta property="og:image" content="https://user-gold-cdn.xitu.io/2020/3/6/170ae7de98a4a283?imageView2/0/w/1280/h/960/format/webp/ignore-error/1">
+<meta property="og:image" content="https://user-gold-cdn.xitu.io/2020/3/6/170ae7de9b517a4b?imageView2/0/w/1280/h/960/format/webp/ignore-error/1">
+<meta property="og:image" content="https://user-gold-cdn.xitu.io/2020/3/6/170ae7de9a1afbd9?imageView2/0/w/1280/h/960/format/webp/ignore-error/1">
+<meta property="og:image" content="https://user-gold-cdn.xitu.io/2020/3/6/170ae7de986cd905?imageView2/0/w/1280/h/960/format/webp/ignore-error/1">
+<meta property="og:image" content="https://user-gold-cdn.xitu.io/2020/3/6/170ae7de999e819e?imageView2/0/w/1280/h/960/format/webp/ignore-error/1">
+<meta property="og:image" content="https://user-gold-cdn.xitu.io/2020/3/6/170ae7dec60a3ecd?imageView2/0/w/1280/h/960/format/webp/ignore-error/1">
+<meta property="og:image" content="https://user-gold-cdn.xitu.io/2020/3/6/170ae7dee8c45b87?imageView2/0/w/1280/h/960/format/webp/ignore-error/1">
+<meta property="og:image" content="https://user-gold-cdn.xitu.io/2020/3/6/170ae7df00142510?imageView2/0/w/1280/h/960/format/webp/ignore-error/1">
+<meta property="og:image" content="https://user-gold-cdn.xitu.io/2020/3/6/170ae7df1855c112?imageView2/0/w/1280/h/960/format/webp/ignore-error/1">
+<meta property="og:image" content="https://user-gold-cdn.xitu.io/2020/3/6/170ae7df15cc2753?imageView2/0/w/1280/h/960/format/webp/ignore-error/1">
+<meta property="og:image" content="https://user-gold-cdn.xitu.io/2020/3/6/170ae7df1d7f2703?imageView2/0/w/1280/h/960/format/webp/ignore-error/1">
+<meta property="og:image" content="https://user-gold-cdn.xitu.io/2020/3/6/170ae7df20c0bac4?imageView2/0/w/1280/h/960/format/webp/ignore-error/1">
+<meta property="og:image" content="https://user-gold-cdn.xitu.io/2020/3/6/170ae7df30ab2ada?imageView2/0/w/1280/h/960/format/webp/ignore-error/1">
+<meta property="article:published_time" content="2020-03-08T03:45:14.000Z">
+<meta property="article:modified_time" content="2021-07-17T10:27:26.828Z">
+<meta property="article:author" content="疯狂的茶几">
+<meta property="article:tag" content="操作系统">
+<meta property="article:tag" content="转载">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://user-gold-cdn.xitu.io/2020/3/6/170ae7de9842f303?imageView2/0/w/1280/h/960/format/webp/ignore-error/1">
+
+
+<link rel="canonical" href="https://www.tomhjx.top/2020/03/08/%E5%8F%88%E8%83%BD%E6%89%AF%E7%9A%AE%E4%BA%86%EF%BC%81%E6%B2%A1%E5%86%85%E5%AD%98%E4%BA%86%E8%BF%98%E8%83%BD%E7%9C%8B%E7%89%87%EF%BC%9F/">
+
+
+
+<script class="next-config" data-name="page" type="application/json">{&quot;sidebar&quot;:&quot;&quot;,&quot;isHome&quot;:false,&quot;isPost&quot;:true,&quot;lang&quot;:&quot;zh-CN&quot;,&quot;comments&quot;:true,&quot;permalink&quot;:&quot;https:&#x2F;&#x2F;www.tomhjx.top&#x2F;2020&#x2F;03&#x2F;08&#x2F;%E5%8F%88%E8%83%BD%E6%89%AF%E7%9A%AE%E4%BA%86%EF%BC%81%E6%B2%A1%E5%86%85%E5%AD%98%E4%BA%86%E8%BF%98%E8%83%BD%E7%9C%8B%E7%89%87%EF%BC%9F&#x2F;&quot;,&quot;path&quot;:&quot;2020&#x2F;03&#x2F;08&#x2F;又能扯皮了！没内存了还能看片？&#x2F;&quot;,&quot;title&quot;:&quot;又能扯皮了！没内存了还能看片？&quot;}</script>
+
+<script class="next-config" data-name="calendar" type="application/json">&quot;&quot;</script>
+<title>又能扯皮了！没内存了还能看片？ | 疯狂的茶几</title>
+  
+
+
+
+<script data-ad-client="ca-pub-5611057674493702" async="" src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
+  <style>@-moz-keyframes next-shake{0%{transform:translate(1pt,1pt) rotate(0)}10%{transform:translate(-1pt,-2pt) rotate(-1deg)}20%{transform:translate(-3pt,0) rotate(1deg)}30%{transform:translate(3pt,2pt) rotate(0)}40%{transform:translate(1pt,-1pt) rotate(1deg)}50%{transform:translate(-1pt,2pt) rotate(-1deg)}60%{transform:translate(-3pt,1pt) rotate(0)}70%{transform:translate(3pt,1pt) rotate(-1deg)}80%{transform:translate(-1pt,-1pt) rotate(1deg)}90%{transform:translate(1pt,2pt) rotate(0)}to{transform:translate(1pt,-2pt) rotate(-1deg)}}@-webkit-keyframes next-shake{0%{transform:translate(1pt,1pt) rotate(0)}10%{transform:translate(-1pt,-2pt) rotate(-1deg)}20%{transform:translate(-3pt,0) rotate(1deg)}30%{transform:translate(3pt,2pt) rotate(0)}40%{transform:translate(1pt,-1pt) rotate(1deg)}50%{transform:translate(-1pt,2pt) rotate(-1deg)}60%{transform:translate(-3pt,1pt) rotate(0)}70%{transform:translate(3pt,1pt) rotate(-1deg)}80%{transform:translate(-1pt,-1pt) rotate(1deg)}90%{transform:translate(1pt,2pt) rotate(0)}to{transform:translate(1pt,-2pt) rotate(-1deg)}}@-o-keyframes next-shake{0%{transform:translate(1pt,1pt) rotate(0)}10%{transform:translate(-1pt,-2pt) rotate(-1deg)}20%{transform:translate(-3pt,0) rotate(1deg)}30%{transform:translate(3pt,2pt) rotate(0)}40%{transform:translate(1pt,-1pt) rotate(1deg)}50%{transform:translate(-1pt,2pt) rotate(-1deg)}60%{transform:translate(-3pt,1pt) rotate(0)}70%{transform:translate(3pt,1pt) rotate(-1deg)}80%{transform:translate(-1pt,-1pt) rotate(1deg)}90%{transform:translate(1pt,2pt) rotate(0)}to{transform:translate(1pt,-2pt) rotate(-1deg)}}@keyframes next-shake{0%{transform:translate(1pt,1pt) rotate(0)}10%{transform:translate(-1pt,-2pt) rotate(-1deg)}20%{transform:translate(-3pt,0) rotate(1deg)}30%{transform:translate(3pt,2pt) rotate(0)}40%{transform:translate(1pt,-1pt) rotate(1deg)}50%{transform:translate(-1pt,2pt) rotate(-1deg)}60%{transform:translate(-3pt,1pt) rotate(0)}70%{transform:translate(3pt,1pt) rotate(-1deg)}80%{transform:translate(-1pt,-1pt) rotate(1deg)}90%{transform:translate(1pt,2pt) rotate(0)}to{transform:translate(1pt,-2pt) rotate(-1deg)}}@-moz-keyframes octocat-wave{0%,to{transform:rotate(0)}20%,60%{transform:rotate(-25deg)}40%,80%{transform:rotate(10deg)}}@-webkit-keyframes octocat-wave{0%,to{transform:rotate(0)}20%,60%{transform:rotate(-25deg)}40%,80%{transform:rotate(10deg)}}@-o-keyframes octocat-wave{0%,to{transform:rotate(0)}20%,60%{transform:rotate(-25deg)}40%,80%{transform:rotate(10deg)}}@keyframes octocat-wave{0%,to{transform:rotate(0)}20%,60%{transform:rotate(-25deg)}40%,80%{transform:rotate(10deg)}}@-moz-keyframes icon-animate{0%,to{transform:scale(1)}10%,30%{transform:scale(.9)}20%,40%,50%,60%,70%,80%{transform:scale(1.1)}}@-webkit-keyframes icon-animate{0%,to{transform:scale(1)}10%,30%{transform:scale(.9)}20%,40%,50%,60%,70%,80%{transform:scale(1.1)}}@-o-keyframes icon-animate{0%,to{transform:scale(1)}10%,30%{transform:scale(.9)}20%,40%,50%,60%,70%,80%{transform:scale(1.1)}}@keyframes icon-animate{0%,to{transform:scale(1)}10%,30%{transform:scale(.9)}20%,40%,50%,60%,70%,80%{transform:scale(1.1)}}@-moz-keyframes next-roll{0%{transform:rotateZ(30deg)}to{transform:rotateZ(-30deg)}}@-webkit-keyframes next-roll{0%{transform:rotateZ(30deg)}to{transform:rotateZ(-30deg)}}@-o-keyframes next-roll{0%{transform:rotateZ(30deg)}to{transform:rotateZ(-30deg)}}@keyframes next-roll{0%{transform:rotateZ(30deg)}to{transform:rotateZ(-30deg)}}@-moz-keyframes dot-flash{0%{opacity:1;transform:scale(1)}to{opacity:0;transform:scale(.8)}}@-webkit-keyframes dot-flash{0%{opacity:1;transform:scale(1)}to{opacity:0;transform:scale(.8)}}@-o-keyframes dot-flash{0%{opacity:1;transform:scale(1)}to{opacity:0;transform:scale(.8)}}@keyframes dot-flash{0%{opacity:1;transform:scale(1)}to{opacity:0;transform:scale(.8)}}:root{--body-bg-color:#fff;--content-bg-color:#f5f5f5;--card-bg-color:#f5f5f5;--text-color:#555;--blockquote-color:#666;--link-color:#555;--link-hover-color:#222;--brand-color:#222;--brand-hover-color:#222;--table-row-odd-bg-color:#f9f9f9;--table-row-hover-bg-color:#f5f5f5;--menu-item-bg-color:#ddd;--btn-default-bg:transparent;--btn-default-color:var(--link-color);--btn-default-border-color:var(--link-color);--btn-default-hover-bg:transparent;--btn-default-hover-color:var(--link-hover-color);--btn-default-hover-border-color:var(--link-hover-color);--highlight-background:#f0f0f0;--highlight-foreground:#444;--highlight-gutter-background:#dedede;--highlight-gutter-foreground:#555}@media (prefers-color-scheme:dark){:root{--body-bg-color:#282828;--content-bg-color:#333;--card-bg-color:#555;--text-color:#ccc;--blockquote-color:#bbb;--link-color:#ccc;--link-hover-color:#eee;--brand-color:#ddd;--brand-hover-color:#ddd;--table-row-odd-bg-color:#282828;--table-row-hover-bg-color:#363636;--menu-item-bg-color:#555;--btn-default-bg:#222;--btn-default-color:#ccc;--btn-default-border-color:#555;--btn-default-hover-bg:#666;--btn-default-hover-color:#ccc;--btn-default-hover-border-color:#666;--highlight-background:#1d1f21;--highlight-foreground:#c5c8c6;--highlight-gutter-background:#2d2f31;--highlight-gutter-foreground:#b4b7b5}img{opacity:.75}img:hover{opacity:.9}}html{line-height:1.15;-webkit-text-size-adjust:100%}body{margin:0}details,main{display:block}hr{box-sizing:content-box;overflow:visible;background-image:repeating-linear-gradient(-45deg,#ddd,#ddd 4px,transparent 4px,transparent 8px);border:0;height:2px;margin:20px 0}kbd,pre,samp{font-size:1em}samp{font-family:monospace,monospace}a{background:0 0;border-bottom:1px solid #ccc;color:var(--link-color);cursor:pointer;outline:0;text-decoration:none;overflow-wrap:break-word}abbr[title]{border-bottom:none;text-decoration:underline dotted}b,strong{font-weight:bolder}small{font-size:80%}sub,sup{font-size:75%;line-height:0;position:relative;vertical-align:baseline}sub{bottom:-.25em}sup{top:-.5em}img{border-style:none}button,input,optgroup,select,textarea{font-family:inherit;font-size:100%;line-height:1.15;margin:0}button,input{overflow:visible}button,select{text-transform:none}[type=button],[type=reset],[type=submit],button{-webkit-appearance:button}[type=button]::-moz-focus-inner,[type=reset]::-moz-focus-inner,[type=submit]::-moz-focus-inner,button::-moz-focus-inner{border-style:none;padding:0}[type=button]:-moz-focusring,[type=reset]:-moz-focusring,[type=submit]:-moz-focusring,button:-moz-focusring{outline:1px dotted ButtonText}fieldset{padding:.35em .75em .625em}legend{color:inherit;display:table;max-width:100%;white-space:normal}progress{vertical-align:baseline}textarea{overflow:auto}[type=checkbox],[type=radio],legend{box-sizing:border-box;padding:0}[type=number]::-webkit-inner-spin-button,[type=number]::-webkit-outer-spin-button{height:auto}[type=search]{outline-offset:-2px;-webkit-appearance:textfield}[type=search]::-webkit-search-decoration{-webkit-appearance:none}::-webkit-file-upload-button{font:inherit;-webkit-appearance:button}summary{display:list-item}[hidden],template{display:none}::selection{background:#262a30;color:#eee}body,html{height:100%}body,h1,h2,h3,h4,h5,h6{font-family:Lato,'PingFang SC','Microsoft YaHei',sans-serif}body{background:var(--body-bg-color);color:var(--text-color);line-height:2;min-height:100%;position:relative;transition:padding .2s ease-in-out}h1,h2,h3,h4,h5,h6{font-weight:700;line-height:1.5;margin:20px 0 15px}h1{font-size:1.5em}h2{font-size:1.375em}h3{font-size:1.25em}h4{font-size:1.125em}body,h5{font-size:1em}h6{font-size:.875em}p,table{margin:0 0 20px}a:hover{border-bottom-color:var(--link-hover-color);color:var(--link-hover-color)}embed,iframe,img,video{display:block;margin-left:auto;margin-right:auto;max-width:100%}blockquote{border-left:4px solid #ddd;color:var(--blockquote-color);margin:0;padding:0 15px}blockquote cite::before{content:'-';padding:0 5px}dt{font-weight:700}dd{margin:0;padding:0}.table-container{overflow:auto}table{border-collapse:collapse;border-spacing:0;font-size:.875em;width:100%}tbody tr:nth-of-type(odd){background:var(--table-row-odd-bg-color)}tbody tr:hover{background:var(--table-row-hover-bg-color)}caption,td,th{padding:8px}td,th{border:1px solid #ddd;border-bottom:3px solid #ddd}th{font-weight:700;padding-bottom:10px}td{border-bottom-width:1px}.btn{background:var(--btn-default-bg);border:2px solid var(--btn-default-border-color);border-radius:0;color:var(--btn-default-color);display:inline-block;font-size:.875em;line-height:2;transition:background-color .2s ease-in-out}.btn:hover{background:var(--btn-default-hover-bg);border-color:var(--btn-default-hover-border-color);color:var(--btn-default-hover-color)}.btn+.btn{margin:0 0 8px 8px}.btn .fa-fw{text-align:left;width:1.285714285714286em}.toggle{line-height:0}.toggle .toggle-line{background:#fff;display:block;height:2px;left:0;position:relative;top:0;transition:all .4s;width:100%}.toggle .toggle-line:not(:first-child){margin-top:3px}.toggle.toggle-arrow .toggle-line:first-child{left:50%;top:2px;transform:rotate(45deg);width:50%}.toggle.toggle-arrow .toggle-line:last-child{left:50%;top:-2px;transform:rotate(-45deg);width:50%}.toggle.toggle-close .toggle-line:nth-child(2){opacity:0}.toggle.toggle-close .toggle-line:first-child{top:5px;transform:rotate(45deg)}.toggle.toggle-close .toggle-line:last-child{top:-5px;transform:rotate(-45deg)}.hljs{display:block;overflow-x:auto;padding:.5em;background:#f0f0f0}.hljs,.hljs-subst{color:#444}.hljs-comment{color:#888}.hljs-attribute,.hljs-doctag,.hljs-keyword,.hljs-meta-keyword,.hljs-name,.hljs-selector-tag{font-weight:700}.hljs-deletion,.hljs-number,.hljs-quote,.hljs-selector-class,.hljs-selector-id,.hljs-string,.hljs-template-tag,.hljs-type{color:#800}.hljs-section,.hljs-title{color:#800;font-weight:700}.hljs-link,.hljs-regexp,.hljs-selector-attr,.hljs-selector-pseudo,.hljs-symbol,.hljs-template-variable,.hljs-variable{color:#bc6060}.hljs-literal{color:#78a960}.hljs-addition,.hljs-built_in,.hljs-bullet,.hljs-code{color:#397300}.hljs-meta{color:#1f7199}.hljs-meta-string{color:#4d99bf}.hljs-emphasis{font-style:italic}.hljs-strong{font-weight:700}@media (prefers-color-scheme:dark){.hljs-comment,.hljs-quote{color:#969896}.hljs-deletion,.hljs-name,.hljs-regexp,.hljs-selector-class,.hljs-selector-id,.hljs-tag,.hljs-template-variable,.hljs-variable{color:#c66}.hljs-built_in,.hljs-builtin-name,.hljs-link,.hljs-literal,.hljs-meta,.hljs-number,.hljs-params,.hljs-type{color:#de935f}.hljs-attribute{color:#f0c674}.hljs-addition,.hljs-bullet,.hljs-string,.hljs-symbol{color:#b5bd68}.hljs-section,.hljs-title{color:#81a2be}.hljs-keyword,.hljs-selector-tag{color:#b294bb}.hljs{display:block;overflow-x:auto;background:#1d1f21;color:#c5c8c6;padding:.5em}.hljs-emphasis{font-style:italic}.hljs-strong{font-weight:700}}code,figure.highlight,kbd,pre{background:var(--highlight-background);color:var(--highlight-foreground)}figure.highlight,pre{line-height:1.6;margin:0 auto 20px}code,pre{font-family:consolas,Menlo,monospace,'PingFang SC','Microsoft YaHei'}code{border-radius:3px;font-size:.875em;padding:2px 4px;overflow-wrap:break-word}kbd{border:2px solid #ccc;border-radius:.2em;box-shadow:.1em .1em .2em rgba(0,0,0,.1);font-family:inherit;padding:.1em .3em;white-space:nowrap}figure.highlight,pre{position:relative}figure.highlight pre{border:0;margin:0;padding:10px 0}figure.highlight table{border:0;margin:0;width:auto}figure.highlight td{border:0;padding:0}figure.highlight figcaption,pre .caption,pre figcaption{background:var(--highlight-gutter-background);color:var(--highlight-foreground);display:flow-root;font-size:.875em;line-height:1.2;padding:.5em}figure.highlight figcaption a,pre .caption a,pre figcaption a{color:var(--highlight-foreground);float:right}figure.highlight figcaption a:hover,pre .caption a:hover,pre figcaption a:hover{border-bottom-color:var(--highlight-foreground)}figure.highlight .gutter{-moz-user-select:none;-ms-user-select:none;-webkit-user-select:none;user-select:none}figure.highlight .gutter pre{background:var(--highlight-gutter-background);color:var(--highlight-gutter-foreground);padding-left:10px;padding-right:10px;text-align:right}figure.highlight .code pre{padding-left:10px;width:100%}pre .caption,pre figcaption{margin-bottom:10px}.gist table{width:auto}.gist table td{border:0}pre{overflow:auto;padding:10px}pre code{background:0 0;padding:0;text-shadow:none}.blockquote-center{border-left:none;margin:40px 0;padding:0;position:relative;text-align:center}.blockquote-center::after,.blockquote-center::before{left:0;line-height:1;opacity:.6;position:absolute;width:100%}.blockquote-center::before{border-top:1px solid #ccc;text-align:left;top:-20px;content:'\f10d';font-family:'Font Awesome 5 Free';font-weight:900}.blockquote-center::after{border-bottom:1px solid #ccc;bottom:-20px;text-align:right;content:'\f10e';font-family:'Font Awesome 5 Free';font-weight:900}.blockquote-center div,.blockquote-center p{text-align:center}.group-picture{margin-bottom:20px}.group-picture .group-picture-row{display:flex;gap:3px;margin-bottom:3px}.group-picture .group-picture-column{flex:1}.group-picture .group-picture-column img{height:100%;margin:0;object-fit:cover;width:100%}.post-body .label{color:#555;padding:0 2px}.post-body .label.default{background:#f0f0f0}.post-body .label.primary{background:#efe6f7}.post-body .label.info{background:#e5f2f8}.post-body .label.success{background:#e7f4e9}.post-body .label.warning{background:#fcf6e1}.post-body .label.danger{background:#fae8eb}.post-body .link-grid{display:grid;grid-gap:1.5rem 1.5rem;gap:1.5rem 1.5rem;grid-template-columns:1fr 1fr;margin-bottom:20px;padding:1rem}@media (max-width:767px){.post-body .link-grid{grid-template-columns:1fr}}.post-body .link-grid .link-grid-container{border:solid #ddd;box-shadow:1rem 1rem .5rem rgba(0,0,0,.5);min-height:5rem;min-width:0;padding:.5rem;position:relative;transition:background .3s}.post-body .link-grid .link-grid-container:hover{animation:next-shake .5s;background:var(--card-bg-color)}.post-body .link-grid .link-grid-container:active{box-shadow:.5rem .5rem .25rem rgba(0,0,0,.5);transform:translate(.2rem,.2rem)}.post-body .link-grid .link-grid-container .link-grid-image{border:1px solid #ddd;border-radius:50%;box-sizing:border-box;height:5rem;padding:3px;position:absolute;width:5rem}.post-body .link-grid .link-grid-container p{margin:0 1rem 0 6rem}.post-body .link-grid .link-grid-container p:first-of-type{font-size:1.2em}.post-body .link-grid .link-grid-container p:last-of-type{font-size:.8em;line-height:1.3rem;opacity:.7}.post-body .link-grid .link-grid-container a{border:0;height:100%;left:0;position:absolute;top:0;width:100%}.post-body .tabs{margin-bottom:20px;padding-top:10px}.post-body h1,.post-body h2,.post-body h3,.post-body h4,.post-body h5,.post-body h6{padding-top:10px}.post-body .tabs ul.nav-tabs,.tabs-comment ul.nav-tabs{display:flex;flex-wrap:wrap;justify-content:center;margin:0;padding:0}@media (max-width:413px){.post-body .tabs ul.nav-tabs,.tabs-comment ul.nav-tabs{display:block;margin-bottom:5px}}.post-body .tabs ul.nav-tabs li.tab,.tabs-comment ul.nav-tabs li.tab{border-bottom:1px solid #ddd;border-left:1px solid transparent;border-right:1px solid transparent;border-radius:0 0 0 0;border-top:3px solid transparent;flex-grow:1;list-style-type:none}@media (max-width:413px){.post-body .tabs ul.nav-tabs li.tab,.tabs-comment ul.nav-tabs li.tab{border-bottom:1px solid transparent;border-left:3px solid transparent;border-right:1px solid transparent;border-top:1px solid transparent;border-radius:0}}.post-body .tabs ul.nav-tabs li.tab a,.tabs-comment ul.nav-tabs li.tab a{border-bottom:initial;display:block;line-height:1.8;padding:.25em .75em;text-align:center;transition:all .2s ease-out}.post-body .tabs ul.nav-tabs li.tab a i,.tabs-comment ul.nav-tabs li.tab a i{width:1.285714285714286em}.post-body .tabs ul.nav-tabs li.tab.active,.tabs-comment ul.nav-tabs li.tab.active{border-color:#fc6423 #ddd transparent}@media (max-width:413px){.post-body .tabs ul.nav-tabs li.tab.active,.tabs-comment ul.nav-tabs li.tab.active{border-color:#ddd #ddd #ddd #fc6423}}.post-body .tabs ul.nav-tabs li.tab.active a,.tabs-comment ul.nav-tabs li.tab.active a{cursor:default}.post-body .tabs .tab-content,.tabs-comment .tab-content{border:1px solid #ddd;border-radius:0 0 0 0;border-top-color:transparent}@media (max-width:413px){.post-body .tabs .tab-content,.tabs-comment .tab-content{border-radius:0;border-top-color:#ddd}}.post-body .tabs .tab-content .tab-pane,.tabs-comment .tab-content .tab-pane{padding:20px 20px 0}.post-body .tabs .tab-content .tab-pane:not(.active),.tabs-comment .tab-content .tab-pane:not(.active){display:none}.post-body .note{border-radius:3px;margin-bottom:20px;padding:1em;position:relative;border:1px solid #eee;border-left-width:5px}.post-body .note summary{cursor:pointer;outline:0}.post-body .note summary p{display:inline}.post-body .note h2,.post-body .note h3,.post-body .note h4,.post-body .note h5,.post-body .note h6{border-bottom:initial;margin:0;padding-top:0}.post-body .note blockquote:first-child,.post-body .note img:first-child,.post-body .note ol:first-child,.post-body .note p:first-child,.post-body .note pre:first-child,.post-body .note table:first-child,.post-body .note ul:first-child{margin-top:0}.post-body .note blockquote:last-child,.post-body .note img:last-child,.post-body .note ol:last-child,.post-body .note p:last-child,.post-body .note pre:last-child,.post-body .note table:last-child,.post-body .note ul:last-child{margin-bottom:0}.post-body .note.default{border-left-color:#777}.post-body .note.default h2,.post-body .note.default h3,.post-body .note.default h4,.post-body .note.default h5,.post-body .note.default h6{color:#777}.post-body .note.primary{border-left-color:#6f42c1}.post-body .note.primary h2,.post-body .note.primary h3,.post-body .note.primary h4,.post-body .note.primary h5,.post-body .note.primary h6{color:#6f42c1}.post-body .note.info{border-left-color:#428bca}.post-body .note.info h2,.post-body .note.info h3,.post-body .note.info h4,.post-body .note.info h5,.post-body .note.info h6{color:#428bca}.post-body .note.success{border-left-color:#5cb85c}.post-body .note.success h2,.post-body .note.success h3,.post-body .note.success h4,.post-body .note.success h5,.post-body .note.success h6{color:#5cb85c}.post-body .note.warning{border-left-color:#f0ad4e}.post-body .note.warning h2,.post-body .note.warning h3,.post-body .note.warning h4,.post-body .note.warning h5,.post-body .note.warning h6{color:#f0ad4e}.post-body .note.danger{border-left-color:#d9534f}.post-body .note.danger h2,.post-body .note.danger h3,.post-body .note.danger h4,.post-body .note.danger h5,.post-body .note.danger h6{color:#d9534f}.mermaid{margin-bottom:20px;text-align:center}.pagination .next,.pagination .page-number,.pagination .prev{display:inline-block;margin:-1px 10px 0;padding:0 10px}.pagination .space{display:inline-block}@media (max-width:767px){.pagination .next,.pagination .page-number,.pagination .prev,.pagination .space{margin:0 5px}}.pagination{border-top:1px solid #eee;margin:120px 0 0}.pagination .next,.pagination .page-number,.pagination .prev{border-bottom:0;border-top:1px solid #eee;transition:border-color .2s ease-in-out}.pagination .next:hover,.pagination .page-number:hover,.pagination .prev:hover{border-top-color:var(--link-hover-color)}@media (max-width:767px){.pagination{border-top:0}.pagination .next,.pagination .page-number,.pagination .prev{border-bottom:1px solid #eee;border-top:0}.pagination .next:hover,.pagination .page-number:hover,.pagination .prev:hover{border-bottom-color:var(--link-hover-color)}}.pagination .space{margin:0;padding:0}.pagination .page-number.current{background:#ccc;border-color:#ccc;color:var(--content-bg-color)}.comments{margin-top:60px;overflow:hidden}.comment-button-group{display:flex;flex-wrap:wrap;justify-content:center;margin:1em 0}.comment-button-group .comment-button{margin:.1em .2em}.comment-button-group .comment-button.active{background:var(--btn-default-hover-bg);border-color:var(--btn-default-hover-border-color);color:var(--btn-default-hover-color)}.comment-position{display:none}.comment-position.active,.menu-item a{display:block}.tabs-comment{margin-top:4em;padding-top:0}.tabs-comment .comments{margin-top:0;padding-top:0}.headband{background:#222;height:3px}@media (max-width:991px){.headband{display:none}}.header{background:var(--content-bg-color)}.header-inner{margin:0 auto;width:700px}@media (min-width:1200px){.header-inner{width:800px}}@media (min-width:1600px){.header-inner{width:900px}}.site-brand-container{display:flex;flex-shrink:0;padding:0 10px}.use-motion .header,.use-motion .site-brand-container .toggle{opacity:0}.site-meta{flex-grow:1;text-align:center}@media (max-width:767px){.site-meta{text-align:center}}.custom-logo-image{margin-top:20px}@media (max-width:991px){.custom-logo-image{display:none}}.brand{border-bottom:0;color:var(--brand-color);display:inline-block;padding:0 40px}.brand:hover{color:var(--brand-hover-color)}.site-title{font-family:Lato,'PingFang SC','Microsoft YaHei',sans-serif;font-size:1.375em;font-weight:400;margin:0}.site-subtitle{color:#999;font-size:.8125em;margin:10px 0}.use-motion .custom-logo-image,.use-motion .site-subtitle,.use-motion .site-title{opacity:0;position:relative;top:-10px}.site-nav-right,.site-nav-toggle{display:none}@media (max-width:767px){.site-nav-right,.site-nav-toggle{display:flex;flex-direction:column;justify-content:center}}.site-nav-right .toggle,.site-nav-toggle .toggle{color:var(--text-color);padding:10px;width:22px}.site-nav-right .toggle .toggle-line,.site-nav-toggle .toggle .toggle-line{background:var(--text-color);border-radius:1px}@media (max-width:767px){.site-nav{--scroll-height:0;height:0;overflow:hidden;transition:height .2s ease-in-out}body:not(.site-nav-on) .site-nav .animated{animation:none}body.site-nav-on .site-nav{height:var(--scroll-height)}}.menu{margin:0;text-align:center}.menu-item{display:inline-block;list-style:none;margin:0 10px}@media (max-width:767px){.menu-item{display:block;margin-top:10px}.menu-item.menu-item-search{display:none}}.menu-item a{border-bottom:0;font-size:.8125em;transition:border-color .2s ease-in-out}.menu-item a.menu-item-active,.menu-item a:hover{background:var(--menu-item-bg-color)}.menu-item .fa,.menu-item .fab,.menu-item .far,.menu-item .fas{margin-right:8px}.menu-item .badge{display:inline-block;font-weight:700;line-height:1;margin-left:.35em;margin-top:.35em;text-align:center;white-space:nowrap}@media (max-width:767px){.menu-item .badge{float:right;margin-left:0}}.use-motion .menu-item{visibility:hidden}.github-corner :hover .octo-arm{animation:octocat-wave 560ms ease-in-out}.github-corner svg{color:#fff;fill:#222;position:absolute;right:0;top:0;z-index:1000}@media (max-width:991px){.github-corner{display:none}.github-corner .github-corner:hover .octo-arm{animation:none}.github-corner .github-corner .octo-arm{animation:octocat-wave 560ms ease-in-out}}@media (max-width:767px){.github-corner svg{top:inherit}}.sidebar-inner{color:#999;padding:18px 10px;text-align:center}.site-overview-item:not(:first-child){margin-top:10px}.cc-license .cc-opacity{border-bottom:0;opacity:.7}.cc-license .cc-opacity:hover{opacity:.9}.cc-license img,.post-reward div{display:inline-block}.site-author-image{border:2px solid #333;max-width:96px;padding:2px}.site-author-name{color:#f5f5f5;font-weight:400;margin:5px 0 0}.site-description{color:#999;font-size:1em;margin-top:5px}.links-of-author a,.links-of-blogroll{font-size:.8125em}.links-of-author .fa,.links-of-author .fab,.links-of-author .far,.links-of-author .fas{margin-right:2px}.sidebar .sidebar-button:not(:first-child){margin-top:15px}.sidebar .sidebar-button a{border:1px solid #fc6423;border-radius:4px;color:#fc6423;display:inline-block;padding:0 15px}.sidebar .sidebar-button a .fa,.sidebar .sidebar-button a .fab,.sidebar .sidebar-button a .far,.sidebar .sidebar-button a .fas{margin-right:5px}.sidebar .sidebar-button a:hover{background:#fc6423;border:1px solid #fc6423;color:#fff}.sidebar .sidebar-button a:hover .fa,.sidebar .sidebar-button a:hover .fab,.sidebar .sidebar-button a:hover .far,.sidebar .sidebar-button a:hover .fas{color:#fff}.links-of-blogroll-title{font-size:.875em;font-weight:600;margin-top:0}.links-of-blogroll-list{list-style:none;margin:0;padding:0}.sidebar-dimmer{display:none}@media (max-width:991px){.sidebar-dimmer{background:#000;display:block;height:100%;left:0;opacity:0;position:fixed;top:0;transition:visibility .4s,opacity .4s;visibility:hidden;width:100%;z-index:1100}.sidebar-active .sidebar-dimmer{opacity:.7;visibility:visible}}.sidebar-nav{display:none;margin:0;padding-bottom:20px;padding-left:0}.sidebar-nav-active .sidebar-nav{display:block}.sidebar-nav li{border-bottom:1px solid transparent;color:#666;cursor:pointer;display:inline-block;font-size:.875em}.sidebar-nav li.sidebar-nav-overview{margin-left:10px}.sidebar-nav li:hover{color:#f5f5f5}.post-toc .nav .active>a,.sidebar-overview-active .sidebar-nav-overview,.sidebar-toc-active .sidebar-nav-toc{border-bottom-color:#87daff;color:#87daff}.post-toc .nav .active-current>a,.post-toc .nav .active-current>a:hover,.sidebar-overview-active .sidebar-nav-overview:hover,.sidebar-toc-active .sidebar-nav-toc:hover{color:#87daff}.sidebar-panel-container{max-height:var(--sidebar-wrapper-height);overflow-x:hidden;overflow-y:auto}.sidebar-panel{display:none}.sidebar-overview-active .site-overview-wrap{display:flex;flex-direction:column;justify-content:center}.sidebar-toc-active .post-toc-wrap{display:block}.sidebar-toggle{bottom:45px;height:12px;padding:6px 5px;width:14px;background:#222;cursor:pointer;opacity:.8;position:fixed;z-index:1300;left:30px}@media (max-width:991px){.sidebar-toggle{left:20px}}.sidebar-toggle:hover{opacity:1}@media (max-width:991px){.sidebar-toggle{opacity:1}}.sidebar-toggle:hover .toggle-line{background:#87daff}@media (any-hover:hover){body:not(.sidebar-active) .sidebar-toggle:hover .toggle-line:first-child{left:50%;top:2px;transform:rotate(45deg);width:50%}body:not(.sidebar-active) .sidebar-toggle:hover .toggle-line:last-child{left:50%;top:-2px;transform:rotate(-45deg);width:50%}}.sidebar-active .sidebar-toggle .toggle-line:nth-child(2){opacity:0}.sidebar-active .sidebar-toggle .toggle-line:first-child{top:5px;transform:rotate(45deg)}.sidebar-active .sidebar-toggle .toggle-line:last-child{top:-5px;transform:rotate(-45deg)}.post-toc{font-size:.875em}.post-toc ol{list-style:none;margin:0;padding:0 2px 5px 10px;text-align:left}.post-toc ol>ol{padding-left:0}.post-toc ol a{transition:all .2s ease-in-out}.post-toc .nav-item{line-height:1.8;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.back-to-top span,.post-toc .nav .nav-child{display:none}.post-toc .nav .active-current>.nav-child,.post-toc .nav .active-current>.nav-child>.nav-item,.post-toc .nav .active>.nav-child{display:block}.site-state{display:flex;flex-wrap:wrap;justify-content:center;line-height:1.4}.site-state-item{padding:0 15px}.site-state-item a{border-bottom:0;display:block}.site-state-item-count{display:block;font-size:1.25em;font-weight:600}.footer,.site-state-item-name{color:inherit;font-size:.875em}.footer{color:#999}.footer.footer-fixed{bottom:0;left:0;position:absolute;right:0}.footer-inner{box-sizing:border-box;display:flex;flex-direction:column;justify-content:center;margin:0 auto;width:700px}@media (min-width:1200px){.footer-inner{width:800px}}@media (min-width:1600px){.footer-inner{width:900px}}.use-motion .footer{opacity:0}.languages{display:inline-block;font-size:1.125em;position:relative}.languages .lang-select-label span{margin:0 .5em}.languages .lang-select{height:100%;left:0;opacity:0;position:absolute;top:0;width:100%}.with-love{color:gray;display:inline-block;margin:0 5px}.back-to-top{font-size:12px;bottom:-100px;box-sizing:border-box;color:#fff;padding:0 6px;transition:bottom .2s ease-in-out;background:#222;cursor:pointer;opacity:.8;position:fixed;z-index:1300;left:30px;width:24px}@media (max-width:991px){.back-to-top{left:20px}}.back-to-top:hover{opacity:1;color:#87daff}@media (max-width:991px){.back-to-top{opacity:1}}.back-to-top.back-to-top-on{bottom:19px}.noscript-warning{background-color:#f55;color:#fff;font-family:sans-serif;font-size:1rem;font-weight:700;left:0;position:fixed;text-align:center;top:0;width:100%;z-index:1500}.rtl.post-body a,.rtl.post-body h1,.rtl.post-body h2,.rtl.post-body h3,.rtl.post-body h4,.rtl.post-body h5,.rtl.post-body h6,.rtl.post-body li,.rtl.post-body ol,.rtl.post-body p,.rtl.post-body ul{direction:rtl;font-family:UKIJ Ekran}.rtl.post-title{font-family:UKIJ Ekran}.use-motion .collection-header,.use-motion .comments,.use-motion .pagination,.use-motion .post-block,.use-motion .post-body,.use-motion .post-header{visibility:hidden}.posts-collapse .post-content{margin-bottom:35px;margin-left:35px;position:relative}@media (max-width:767px){.posts-collapse .post-content{margin-left:0;margin-right:0}}.posts-collapse .post-content .collection-title{font-size:1.125em;position:relative}.posts-collapse .post-content .collection-title::before{background:#999;border:1px solid #fff;margin-left:-6px;margin-top:-4px;position:absolute;top:50%;border-radius:50%;content:' ';height:10px;width:10px}.posts-collapse .post-content .collection-year{font-size:1.5em;font-weight:700;margin:60px 0;position:relative}.posts-collapse .post-content .collection-year::before{background:#bbb;margin-left:-4px;margin-top:-4px;position:absolute;top:50%;border-radius:50%;content:' ';height:8px;width:8px}.posts-collapse .post-content .collection-header{display:block;margin-left:20px}.posts-collapse .post-content .collection-header small{color:#bbb;margin-left:5px}.posts-collapse .post-content .post-header{border-bottom:1px dashed #ccc;margin:30px 2px 0;padding-left:15px;position:relative;transition:border .2s ease-in-out}.posts-collapse .post-content .post-header::before{background:#bbb;border:1px solid #fff;left:-6px;position:absolute;top:.75em;transition:background .2s ease-in-out;border-radius:50%;content:' ';height:6px;width:6px}.posts-collapse .post-content .post-header:hover{border-bottom-color:#666}.posts-collapse .post-content .post-header:hover::before{background:#222}.posts-collapse .post-content .post-meta-container{display:inline;font-size:.75em;margin-right:10px}.posts-collapse .post-content .post-title,ul.breadcrumb li{display:inline}.posts-collapse .post-content .post-title a{border-bottom:0;color:var(--link-color)}.posts-collapse .post-content .post-title .fa-external-link-alt{font-size:.875em;margin-left:5px}.posts-collapse .post-content::before{background:#f5f5f5;content:' ';height:100%;margin-left:-2px;position:absolute;top:1.25em;width:4px}.post-body{font-family:Lato,'PingFang SC','Microsoft YaHei',sans-serif;overflow-wrap:break-word}@media (min-width:1200px){.post-body{font-size:1.125em}}@media (min-width:992px){.post-body{text-align:justify}}@media (max-width:991px){.post-body{text-align:justify}}.post-body h1 .header-anchor,.post-body h1 .headerlink,.post-body h2 .header-anchor,.post-body h2 .headerlink,.post-body h3 .header-anchor,.post-body h3 .headerlink,.post-body h4 .header-anchor,.post-body h4 .headerlink,.post-body h5 .header-anchor,.post-body h5 .headerlink,.post-body h6 .header-anchor,.post-body h6 .headerlink{border-bottom-style:none;color:inherit;float:right;font-size:.875em;margin-left:10px;opacity:0}.post-body h1 .header-anchor::before,.post-body h1 .headerlink::before,.post-body h2 .header-anchor::before,.post-body h2 .headerlink::before,.post-body h3 .header-anchor::before,.post-body h3 .headerlink::before,.post-body h4 .header-anchor::before,.post-body h4 .headerlink::before,.post-body h5 .header-anchor::before,.post-body h5 .headerlink::before,.post-body h6 .header-anchor::before,.post-body h6 .headerlink::before{content:'\f0c1';font-family:'Font Awesome 5 Free';font-weight:900}.post-body h1:hover .header-anchor,.post-body h1:hover .headerlink,.post-body h2:hover .header-anchor,.post-body h2:hover .headerlink,.post-body h3:hover .header-anchor,.post-body h3:hover .headerlink,.post-body h4:hover .header-anchor,.post-body h4:hover .headerlink,.post-body h5:hover .header-anchor,.post-body h5:hover .headerlink,.post-body h6:hover .header-anchor,.post-body h6:hover .headerlink{opacity:.5}.post-body h1:hover .header-anchor:hover,.post-body h1:hover .headerlink:hover,.post-body h2:hover .header-anchor:hover,.post-body h2:hover .headerlink:hover,.post-body h3:hover .header-anchor:hover,.post-body h3:hover .headerlink:hover,.post-body h4:hover .header-anchor:hover,.post-body h4:hover .headerlink:hover,.post-body h5:hover .header-anchor:hover,.post-body h5:hover .headerlink:hover,.post-body h6:hover .header-anchor:hover,.post-body h6:hover .headerlink:hover{opacity:1}.post-body .exturl .fa{font-size:.875em;margin-left:4px}.post-body .figure .caption,.post-body .image-caption{color:#999;font-size:.875em;font-weight:700;line-height:1;margin:-20px auto 15px;text-align:center}.post-body embed,.post-body iframe,.post-body img,.post-body video{margin-bottom:20px}.post-body .video-container{height:0;margin-bottom:20px;overflow:hidden;padding-top:75%;position:relative;width:100%}.post-body .video-container embed,.post-body .video-container iframe,.post-body .video-container object{height:100%;left:0;margin:0;position:absolute;top:0;width:100%}.post-gallery{display:flex;min-height:200px}.post-gallery .post-gallery-image{flex:1}.post-gallery .post-gallery-image:not(:first-child){clip-path:polygon(40px 0,100% 0,100% 100%,0 100%);margin-left:-20px}.post-gallery .post-gallery-image:not(:last-child){margin-right:-20px}.post-gallery .post-gallery-image img{height:100%;object-fit:cover;opacity:1;width:100%}.posts-expand .post-gallery{margin-bottom:60px}.posts-collapse .post-gallery{margin:15px 0}.posts-expand .post-header{font-size:1.125em;text-align:center}.posts-expand .post-title{font-size:1.5em;font-weight:400;margin:initial;overflow-wrap:break-word}.posts-expand .post-title-link{border-bottom:0;color:var(--link-color);display:inline-block;position:relative}.posts-expand .post-title-link::before{background:var(--link-color);bottom:0;content:'';height:2px;left:0;position:absolute;transform:scaleX(0);transition:transform .2s ease-in-out;width:100%}.posts-expand .post-title-link:hover::before{transform:scaleX(1)}.posts-expand .post-title-link .fa-external-link-alt{font-size:.875em;margin-left:5px}.post-sticky-flag{display:inline-block;margin-right:8px;transform:rotate(30deg)}.posts-expand .post-meta-container{color:#999;font-family:Lato,'PingFang SC','Microsoft YaHei',sans-serif;font-size:.75em;margin-top:3px}.posts-expand .post-meta-container .post-description{font-size:.875em;margin-top:2px}.posts-expand .post-meta-container time{border-bottom:1px dashed #999;cursor:pointer}.post-meta{display:flex;flex-wrap:wrap;justify-content:center}.post-meta-item:not(:first-child)::before{content:'|';margin:0 .5em}.post-meta-item-icon{margin-right:3px}@media (max-width:991px){.post-meta-item-text{display:none}}.post-nav{border-top:1px solid #eee;display:flex;gap:30px;justify-content:space-between;margin-top:1em;padding:10px 5px 0}.post-nav-item{flex:1}.post-nav-item a{border-bottom:0;display:block;font-size:.875em;line-height:1.6}.post-nav-item a:active{top:2px}.post-nav-item .fa{font-size:.75em}.post-nav-item:first-child .fa{margin-right:5px}.post-nav-item:last-child{text-align:right}.post-nav-item:last-child .fa{margin-left:5px}.post-footer{display:flex;flex-direction:column;justify-content:center}.post-eof{background:#ccc;height:1px;margin:80px auto 60px;width:8%}.post-block:last-of-type .post-eof{display:none}.post-tags{margin-top:40px;text-align:center}.post-tags a{display:inline-block;font-size:.8125em}.post-tags a:not(:last-child){margin-right:10px}.post-widgets{border-top:1px solid #eee;margin-top:15px;text-align:center}.wp_rating{height:20px;line-height:20px;margin-top:10px;padding-top:6px;text-align:center}.social-like{display:flex;font-size:.875em;justify-content:center;text-align:center}.reward-container{margin:1em 0 0;padding:1em 0;text-align:center}.reward-container button{background:0 0;border:2px solid #87daff;border-radius:2px;color:#87daff;cursor:pointer;line-height:2;outline:0;padding:0 15px;transition:all .2s ease-in-out;vertical-align:text-top}.reward-container button:hover{background:#87daff;border:2px solid transparent;color:#fff}.post-reward{display:none;padding-top:20px}.post-reward div span,.post-reward.active{display:block}.post-reward img{display:inline-block;margin:.8em 2em 0;max-width:100%;width:180px}.category-all-page .category-all-title,.tag-cloud{text-align:center}.category-all-page .category-all{margin-top:20px}.category-all-page .category-list{list-style:none;margin:0;padding:0}.category-all-page .category-list-item{margin:5px 10px}.category-all-page .category-list-count{color:#bbb}.category-all-page .category-list-count::before{content:' ('}.category-all-page .category-list-count::after{content:') '}.category-all-page .category-list-child{padding-left:10px}.event-list hr{background:#222;margin:20px 0 45px}.event-list hr::after{background:#222;color:#fff;content:'NOW';display:inline-block;font-weight:700;padding:0 5px}.event-list .event{--event-background:#222;--event-foreground:#bbb;--event-title:#fff;background:var(--event-background);padding:15px}.event-list .event .event-summary{border-bottom:0;color:var(--event-title);margin:0;padding:0 0 0 35px;position:relative}.event-list .event .event-summary::before{animation:dot-flash 1s alternate infinite ease-in-out;background:var(--event-title);left:0;margin-top:-6px;position:absolute;top:50%;border-radius:50%;content:' ';height:12px;width:12px}.event-list .event:nth-of-type(odd) .event-summary::before{animation-delay:.5s}.event-list .event:not(:last-child){margin-bottom:20px}.event-list .event .event-relative-time{color:var(--event-foreground);display:inline-block;font-size:12px;font-weight:400;padding-left:12px}.event-list .event .event-details{color:var(--event-foreground);display:block;line-height:18px;padding:6px 0 6px 35px}.event-list .event .event-details::before{color:var(--event-foreground);display:inline-block;margin-right:9px;width:14px;font-family:'Font Awesome 5 Free';font-weight:900}.event-list .event .event-details.event-location::before{content:'\f041'}.event-list .event .event-details.event-duration::before{content:'\f017'}.event-list .event .event-details.event-description::before{content:'\f024'}.event-list .event-past{--event-background:#f5f5f5;--event-foreground:#999;--event-title:#222}ul.breadcrumb{font-size:.75em;list-style:none;margin:1em 0;padding:0 2em;text-align:center}ul.breadcrumb li:not(:first-child)::before{content:'/\00a0';font-weight:400;padding:.5em}ul.breadcrumb li:last-child{font-weight:700}.tag-cloud a{display:inline-block;margin:10px}.tag-cloud-0{border-bottom-color:#aaa;color:#aaa}.tag-cloud-1{border-bottom-color:#9a9a9a;color:#9a9a9a}.tag-cloud-2{border-bottom-color:#8b8b8b;color:#8b8b8b}.tag-cloud-3{border-bottom-color:#7c7c7c;color:#7c7c7c}.tag-cloud-4{border-bottom-color:#6c6c6c;color:#6c6c6c}.tag-cloud-5{border-bottom-color:#5d5d5d;color:#5d5d5d}.tag-cloud-6{border-bottom-color:#4e4e4e;color:#4e4e4e}.tag-cloud-7{border-bottom-color:#3e3e3e;color:#3e3e3e}.tag-cloud-8{border-bottom-color:#2f2f2f;color:#2f2f2f}.tag-cloud-9{border-bottom-color:#202020;color:#202020}.tag-cloud-10{border-bottom-color:#111;color:#111}@media (prefers-color-scheme:dark){.tag-cloud-0{border-bottom-color:#555;color:#555}.tag-cloud-1{border-bottom-color:#646464;color:#646464}.tag-cloud-2{border-bottom-color:#737373;color:#737373}.tag-cloud-3{border-bottom-color:#828282;color:#828282}.tag-cloud-4{border-bottom-color:#929292;color:#929292}.tag-cloud-5{border-bottom-color:#a1a1a1;color:#a1a1a1}.tag-cloud-6{border-bottom-color:#b0b0b0;color:#b0b0b0}.tag-cloud-7{border-bottom-color:silver;color:silver}.tag-cloud-8{border-bottom-color:#cfcfcf;color:#cfcfcf}.tag-cloud-9{border-bottom-color:#dedede;color:#dedede}.tag-cloud-10{border-bottom-color:#eee;color:#eee}}.search-active{overflow:hidden}.search-pop-overlay{background:0 0;display:flex;height:100%;left:0;position:fixed;top:0;transition:visibility .4s,background .4s;visibility:hidden;width:100%;z-index:1400}.search-active .search-pop-overlay{background:rgba(0,0,0,.3);visibility:visible}.search-popup{background:var(--card-bg-color);border-radius:5px;height:80%;margin:auto;transform:scale(0);transition:transform .4s;width:700px}.search-active .search-popup{transform:scale(1)}@media (max-width:767px){.search-popup{border-radius:0;height:100%;width:100%}}.search-popup .popup-btn-close,.search-popup .search-icon{color:#999;font-size:18px;padding:0 10px}.search-popup .popup-btn-close{cursor:pointer}.search-popup .popup-btn-close:hover .fa{color:#222}.search-popup .search-header{background:#eee;border-top-left-radius:5px;border-top-right-radius:5px;display:flex;padding:5px}.search-popup input.search-input{background:0 0;border:0;outline:0;width:100%}.search-popup input.search-input::-webkit-search-cancel-button{display:none}.search-popup .search-result-container{height:calc(100% - 55px);overflow:auto;padding:5px 25px}.search-popup .search-result-container hr{margin:5px 0 10px}.search-popup .search-result-container hr:first-child{display:none}.search-popup .search-result-list{margin:0 5px;padding:0}.search-popup a.search-result-title{font-weight:700}.search-popup p.search-result{border-bottom:1px dashed #ccc;padding:5px 0}.search-popup .search-input-container{flex-grow:1;padding:2px}.search-popup .no-result{display:flex}.search-popup .search-result-list{width:100%}.search-popup .search-result-icon{color:#ccc;margin:auto}mark.search-keyword{background:0 0;border-bottom:1px dashed #ff2a2a;color:#ff2a2a;font-weight:700}.use-motion .animated{animation-fill-mode:none;visibility:inherit}.use-motion .sidebar .animated{animation-fill-mode:both}.btn{padding:0 10px}.headband{display:none}.pagination{text-align:left}@media (max-width:767px){.pagination{margin:80px 0 0;text-align:center}}.footer{background:var(--content-bg-color);color:var(--text-color);padding:10px 0}.footer-inner{text-align:left}@media (max-width:767px){.footer-inner{text-align:center}}.header-inner{align-items:center;display:flex;padding:20px 0}@media (max-width:767px){.header-inner{display:block;padding:10px 0}}.site-meta{line-height:normal}.site-meta .brand{padding:2px 1px}@media (max-width:767px){.site-meta .brand{display:block}}.site-meta .site-title{font-weight:bolder}.logo-line{background:var(--brand-color);display:block;height:2px;margin:0 auto;width:75%}@media (max-width:767px){.logo-line{display:none}}.use-motion .logo-line:first-of-type{transform:scaleX(0);transform-origin:left}.use-motion .logo-line:last-of-type{transform:scaleX(0);transform-origin:right}.site-subtitle{display:none}.site-nav{flex-grow:1}@media (max-width:767px){.site-nav{padding:10px 10px 0}}.menu{padding:0}.menu .menu-item{margin:0}@media (max-width:767px){.menu .menu-item{margin-top:5px}}.menu .menu-item a{border-radius:2px;padding:0 10px;transition-property:background}@media (max-width:767px){.menu .menu-item a{text-align:left}}.menu .menu-item .badge{background:#fff;border-radius:10px;color:#555;padding:1px 4px;text-shadow:1px 1px 0 rgba(0,0,0,.1)}.posts-expand.index .post-header{text-align:left}@media (max-width:767px){.posts-expand.index .post-header{text-align:center}}.posts-expand.index .post-meta-container{margin-top:5px}.posts-expand.index .post-meta{justify-content:flex-start}@media (max-width:767px){.posts-expand.index .post-meta{justify-content:center}}.posts-expand .post-eof{display:none}.posts-expand .post-block:not(:first-child){margin-top:120px}.posts-expand .post-header{margin-bottom:20px}.post-button,.posts-expand .post-tags{text-align:left}.posts-expand .post-tags a{background:var(--content-bg-color);border-bottom:0;padding:1px 5px}.posts-expand .post-tags a:hover{background:var(--menu-item-bg-color)}.posts-expand .post-nav{margin-top:40px}.post-button{margin-top:20px}.post-button .btn{background:0 0;border:0;border-bottom:2px solid var(--btn-default-border-color);padding:0;transition-property:border}.post-button .btn:hover{border-bottom-color:var(--btn-default-hover-border-color)}.main-inner{margin:0 auto;width:700px}@media (min-width:1200px){.main-inner{width:800px}}@media (min-width:1600px){.main-inner{width:900px}}@media (max-width:767px){.main-inner{padding-left:20px;padding-right:20px}.footer-inner,.header-inner,.main-inner{width:auto}}.main-inner{padding-bottom:80px}.post-block:first-of-type{padding-top:80px}@media (max-width:767px){.post-block:first-of-type{padding-top:60px}}@media (min-width:992px){.sidebar-active{padding-left:320px}}.sidebar{left:-320px;background:#222;bottom:0;box-shadow:inset 0 2px 6px #000;position:fixed;top:0;transition:all .2s ease-out;width:320px;z-index:1200}.sidebar-active .sidebar{left:0}.sidebar a{border-bottom-color:#555;color:#999}.sidebar a:hover{border-bottom-color:#eee;color:#eee}.links-of-author:not(:first-child){margin-top:15px}.links-of-author a{border-bottom-color:#555;display:inline-block;margin-bottom:10px;margin-right:10px;vertical-align:middle}.links-of-author a::before{background:#3308ff;display:inline-block;margin-right:3px;transform:translateY(-2px);border-radius:50%;content:' ';height:4px;width:4px}.links-of-blogroll-item{padding:2px 10px}.links-of-blogroll-item a{box-sizing:border-box;display:inline-block;max-width:280px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.sub-menu{margin:10px 0}.sub-menu .menu-item{display:inline-block}</style><noscript>
+    
+  </noscript>
+<script>function loadCss(l){var d=document,h=d.head,s=d.createElement('link');s.rel='stylesheet';s.href=l;!function e(f){if (d.body)return f();setTimeout(function(){e(f)})}(function(){h.appendChild(s);});}loadCss('/style.css');loadCss('https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@5.15.3/css/all.min.css');</script><noscript><link rel="stylesheet" href="/style.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@5.15.3/css/all.min.css"></noscript></head>
+
+<body itemscope="" itemtype="http://schema.org/WebPage">
+  <div class="headband"></div>
+
+  <main class="main">
+    <header class="header" itemscope="" itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏" role="button">
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <i class="logo-line"></i>
+      <h1 class="site-title">疯狂的茶几</h1>
+      <i class="logo-line"></i>
+    </a>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  <ul class="main-menu menu">
+        <li class="menu-item menu-item-home"><a href="/" rel="section"><i class="home fa-fw"></i>首页</a></li>
+        <li class="menu-item menu-item-about"><a href="/about/" rel="section"><i class="user fa-fw"></i>关于</a></li>
+        <li class="menu-item menu-item-tags"><a href="/tags/" rel="section"><i class="tags fa-fw"></i>标签</a></li>
+        <li class="menu-item menu-item-categories"><a href="/categories/" rel="section"><i class="th fa-fw"></i>分类</a></li>
+        <li class="menu-item menu-item-archives"><a href="/archives/" rel="section"><i class="archive fa-fw"></i>归档</a></li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>搜索
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup"><div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocapitalize="off" maxlength="80" placeholder="搜索..." spellcheck="false" type="search" class="search-input">
+  </div>
+  <span class="popup-btn-close" role="button">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div class="search-result-container no-result">
+  <div class="search-result-icon">
+    <i class="fa fa-spinner fa-pulse fa-5x"></i>
+  </div>
+</div>
+
+    </div>
+  </div>
+
+</div>
+        
+  
+  <div class="toggle sidebar-toggle" role="button">
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+  </div>
+
+  <aside class="sidebar">
+
+    <div class="sidebar-inner sidebar-nav-active sidebar-toc-active">
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <div class="sidebar-panel-container">
+        <!--noindex-->
+        <div class="post-toc-wrap sidebar-panel">
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E8%99%9A%E6%8B%9F%E5%86%85%E5%AD%98"><span class="nav-number">1.</span> <span class="nav-text">虚拟内存</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%88%86%E9%A1%B5"><span class="nav-number">1.1.</span> <span class="nav-text">分页</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%AD%98%E5%9C%A8%E6%98%A0%E5%B0%84%E7%9A%84%E9%A1%B5%E5%A6%82%E4%BD%95%E6%98%A0%E5%B0%84"><span class="nav-number">1.1.1.</span> <span class="nav-text">存在映射的页如何映射</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E6%9C%AA%E6%98%A0%E5%B0%84%E7%9A%84%E9%A1%B5%E5%A6%82%E4%BD%95%E6%98%A0%E5%B0%84"><span class="nav-number">1.1.2.</span> <span class="nav-text">未映射的页如何映射</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E9%A1%B5%E8%A1%A8"><span class="nav-number">1.2.</span> <span class="nav-text">页表</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E9%A1%B5%E8%A1%A8%E9%A1%B9%E7%9A%84%E7%BB%93%E6%9E%84"><span class="nav-number">1.2.1.</span> <span class="nav-text">页表项的结构</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%8A%A0%E9%80%9F%E5%88%86%E9%A1%B5%E8%BF%87%E7%A8%8B"><span class="nav-number">1.3.</span> <span class="nav-text">加速分页过程</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E8%BD%AC%E6%8D%A2%E6%A3%80%E6%B5%8B%E7%BC%93%E5%86%B2%E5%8C%BA"><span class="nav-number">1.3.1.</span> <span class="nav-text">转换检测缓冲区</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E8%BD%AF%E4%BB%B6-TLB-%E7%AE%A1%E7%90%86"><span class="nav-number">1.3.2.</span> <span class="nav-text">软件 TLB 管理</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E9%92%88%E5%AF%B9%E5%A4%A7%E5%86%85%E5%AD%98%E7%9A%84%E9%A1%B5%E8%A1%A8"><span class="nav-number">1.4.</span> <span class="nav-text">针对大内存的页表</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%A4%9A%E7%BA%A7%E9%A1%B5%E8%A1%A8"><span class="nav-number">1.4.1.</span> <span class="nav-text">多级页表</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%80%92%E6%8E%92%E9%A1%B5%E8%A1%A8"><span class="nav-number">1.4.2.</span> <span class="nav-text">倒排页表</span></a></li></ol></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%88%8A%E8%AF%AF"><span class="nav-number">2.</span> <span class="nav-text">刊误</span></a></li></ol></div>
+        </div>
+        <!--/noindex-->
+
+        <div class="site-overview-wrap sidebar-panel">
+          <div class="site-author site-overview-item animated" itemprop="author" itemscope="" itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="疯狂的茶几" src="/uploads/avatar.jpg">
+  <p class="site-author-name" itemprop="name">疯狂的茶几</p>
+  <div class="site-description" itemprop="description">懒人一个</div>
+</div>
+<div class="site-state-wrap site-overview-item animated">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">51</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+          
+        <span class="site-state-item-count">50</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">43</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author site-overview-item animated">
+      <span class="links-of-author-item">
+        <a href="https://github.com/tomhjx" title="GitHub → https://github.com/tomhjx" rel="noopener" target="_blank"><i class="github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="mailto:tom_hejiaxi@163.com" title="E-Mail → mailto:tom_hejiaxi@163.com" rel="noopener" target="_blank"><i class="envelope fa-fw"></i>E-Mail</a>
+      </span>
+  </div>
+
+
+
+        </div>
+      </div>
+    </div>
+  </aside>
+  <div class="sidebar-dimmer"></div>
+
+
+    </header>
+
+    
+  <div class="back-to-top" role="button" aria-label="返回顶部">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+  <a href="https://github.com/tomhjx" class="github-corner" title="Follow me on GitHub" aria-label="Follow me on GitHub" rel="noopener" target="_blank"><svg width="80" height="80" viewBox="0 0 250 250" aria-hidden="true"><path d="M0,0 L115,115 L130,115 L142,142 L250,250 L250,0 Z"></path><path d="M128.3,109.0 C113.8,99.7 119.0,89.6 119.0,89.6 C122.0,82.7 120.5,78.6 120.5,78.6 C119.2,72.0 123.4,76.3 123.4,76.3 C127.3,80.9 125.5,87.3 125.5,87.3 C122.9,97.6 130.6,101.9 134.4,103.2" fill="currentColor" style="transform-origin: 130px 106px;" class="octo-arm"></path><path d="M115.0,115.0 C114.9,115.1 118.7,116.5 119.8,115.4 L133.7,101.6 C136.9,99.2 139.9,98.4 142.2,98.6 C133.8,88.0 127.5,74.4 143.8,58.0 C148.5,53.4 154.0,51.2 159.7,51.0 C160.3,49.4 163.2,43.6 171.4,40.1 C171.4,40.1 176.1,42.5 178.8,56.2 C183.1,58.6 187.2,61.8 190.9,65.4 C194.5,69.0 197.7,73.2 200.1,77.6 C213.8,80.2 216.3,84.9 216.3,84.9 C212.7,93.1 206.9,96.0 205.4,96.6 C205.1,102.4 203.0,107.8 198.3,112.5 C181.9,128.9 168.3,122.5 157.7,114.1 C157.9,116.9 156.7,120.9 152.7,124.9 L141.0,136.5 C139.8,137.7 141.6,141.9 141.8,141.8 Z" fill="currentColor" class="octo-body"></path></svg></a>
+
+<noscript>
+  <div class="noscript-warning">Theme NexT works best with JavaScript enabled</div>
+</noscript>
+
+
+    <div class="main-inner post posts-expand">
+
+
+  
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope="" itemtype="http://schema.org/Article" class="post-content" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://www.tomhjx.top/2020/03/08/%E5%8F%88%E8%83%BD%E6%89%AF%E7%9A%AE%E4%BA%86%EF%BC%81%E6%B2%A1%E5%86%85%E5%AD%98%E4%BA%86%E8%BF%98%E8%83%BD%E7%9C%8B%E7%89%87%EF%BC%9F/">
+
+    <span hidden="" itemprop="author" itemscope="" itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/uploads/avatar.jpg">
+      <meta itemprop="name" content="疯狂的茶几">
+      <meta itemprop="description" content="懒人一个">
+    </span>
+
+    <span hidden="" itemprop="publisher" itemscope="" itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="疯狂的茶几">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          又能扯皮了！没内存了还能看片？
+        </h1>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">发表于</span>
+
+      <time title="创建时间：2020-03-08 11:45:14" itemprop="dateCreated datePublished" datetime="2020-03-08T11:45:14+08:00">2020-03-08</time>
+    </span>
+      <span class="post-meta-item">
+        <span class="post-meta-item-icon">
+          <i class="far fa-calendar-check"></i>
+        </span>
+        <span class="post-meta-item-text">更新于</span>
+        <time title="修改时间：2021-07-17 18:27:26" itemprop="dateModified" datetime="2021-07-17T18:27:26+08:00">2021-07-17</time>
+      </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-folder"></i>
+      </span>
+      <span class="post-meta-item-text">分类于</span>
+        <span itemprop="about" itemscope="" itemtype="http://schema.org/Thing">
+          <a href="/categories/%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F/" itemprop="url" rel="index"><span itemprop="name">操作系统</span></a>
+        </span>
+          ，
+        <span itemprop="about" itemscope="" itemtype="http://schema.org/Thing">
+          <a href="/categories/%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F/%E9%80%9A%E7%94%A8/" itemprop="url" rel="index"><span itemprop="name">通用</span></a>
+        </span>
+    </span>
+
+  
+    <span class="post-meta-item" title="本文字数">
+      <span class="post-meta-item-icon">
+        <i class="far fa-file-word"></i>
+      </span>
+      <span class="post-meta-item-text">本文字数：</span>
+      <span>9.3k</span>
+    </span>
+    <span class="post-meta-item" title="阅读时长">
+      <span class="post-meta-item-icon">
+        <i class="far fa-clock"></i>
+      </span>
+      <span class="post-meta-item-text">阅读时长 ≈</span>
+      <span>8 分钟</span>
+    </span>
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+        <h2 id="虚拟内存"><a href="#虚拟内存" class="headerlink" title="虚拟内存"></a>虚拟内存</h2><p>尽管基址寄存器和变址寄存器用来创建地址空间的抽象，但是这有一个其他的问题需要解决：<code>管理软件的膨胀(managing bloatware)</code>。虽然内存的大小增长迅速，但是软件的大小增长的要比内存还要快。在 1980 年的时候，许多大学用一台 4 MB 的 VAX 计算机运行分时操作系统，供十几个用户同时运行。现在微软公司推荐的 64 位 Windows 8 系统至少需要 2 GB 内存，而许多多媒体的潮流则进一步推动了对内存的需求。</p>
+<p>这一发展的结果是，需要运行的程序往往大到内存无法容纳，而且必然需要系统能够支持多个程序同时运行，即使内存可以满足其中单独一个程序的需求，但是从总体上来看内存仍然满足不了日益增长的软件的需求（感觉和xxx和xxx 的矛盾很相似）。而交换技术并不是一个很有效的方案，在一些中小应用程序尚可使用交换，如果应用程序过大，难道还要每次交换几 GB 的内存？这显然是不合适的，一个典型的 <code>SATA</code> 磁盘的峰值传输速度高达几百兆/秒，这意味着需要好几秒才能换出或者换入一个 1 GB 的程序。</p>
+<blockquote>
+<p>SATA（Serial ATA）硬盘，又称串口硬盘，是未来 PC 机硬盘的趋势，已基本取代了传统的 PATA 硬盘。</p>
+</blockquote>
+<p>那么还有没有一种有效的方式来应对呢？有，那就是使用 <code>虚拟内存(virtual memory)</code>，虚拟内存的基本思想是，每个程序都有自己的地址空间，这个地址空间被划分为多个称为<code>页面(page)</code>的块。每一页都是连续的地址范围。这些页被映射到物理内存，但并不是所有的页都必须在内存中才能运行程序。当程序引用到一部分在物理内存中的地址空间时，硬件会立刻执行必要的映射。当程序引用到一部分不在物理内存中的地址空间时，由操作系统负责将缺失的部分装入物理内存并重新执行失败的指令。</p>
+<p>在某种意义上来说，虚拟地址是对基址寄存器和变址寄存器的一种概述。8088 有分离的基址寄存器（但不是变址寄存器）用于放入 text 和 data 。</p>
+<p>使用虚拟内存，可以将整个地址空间以很小的单位映射到物理内存中，而不是仅仅针对 text 和 data 区进行重定位。下面我们会探讨虚拟内存是如何实现的。</p>
+<p>虚拟内存很适合在多道程序设计系统中使用，许多程序的片段同时保存在内存中，当一个程序等待它的一部分读入内存时，可以把 CPU 交给另一个进程使用。</p>
+<h3 id="分页"><a href="#分页" class="headerlink" title="分页"></a>分页</h3><p>大部分使用虚拟内存的系统中都会使用一种 <code>分页(paging)</code> 技术。在任何一台计算机上，程序会引用使用一组内存地址。当程序执行</p>
+<figure class="highlight plaintext"><table><tbody><tr><td class="code"><pre><span class="line">MOV REG,1000</span><br><span class="line">复制代码</span><br></pre></td></tr></tbody></table></figure>
+
+<p>这条指令时，它会把内存地址为 1000 的内存单元的内容复制到 REG 中（或者相反，这取决于计算机）。地址可以通过索引、基址寄存器、段寄存器或其他方式产生。</p>
+<p>这些程序生成的地址被称为 <code>虚拟地址(virtual addresses)</code> 并形成<code>虚拟地址空间(virtual address space)</code>，在没有虚拟内存的计算机上，系统直接将虚拟地址送到内存中线上，读写操作都使用同样地址的物理内存。<strong>在使用虚拟内存时，虚拟地址不会直接发送到内存总线上</strong>。相反，会使用 <code>MMU(Memory Management Unit)</code> 内存管理单元把<strong>虚拟地址映射为物理内存地址</strong>，像下图这样</p>
+<p><img src="https://user-gold-cdn.xitu.io/2020/3/6/170ae7de9842f303?imageView2/0/w/1280/h/960/format/webp/ignore-error/1"></p>
+<p>下面这幅图展示了这种映射是如何工作的</p>
+<p><img src="https://user-gold-cdn.xitu.io/2020/3/6/170ae7de98a4a283?imageView2/0/w/1280/h/960/format/webp/ignore-error/1"></p>
+<p>页表给出虚拟地址与物理内存地址之间的映射关系。每一页起始于 4096 的倍数位置，结束于 4095 的位置，所以 4K 到 8K 实际为 4096 - 8191 ，8K - 12K 就是 8192 - 12287</p>
+<p>在这个例子中，我们可能有一个 16 位地址的计算机，地址从 0 - 64 K - 1，这些是<code>虚拟地址</code>。然而只有 32 KB 的物理地址。所以虽然可以编写 64 KB 的程序，但是程序无法全部调入内存运行，在磁盘上必须有一个最多 64 KB 的程序核心映像的完整副本，以保证程序片段在需要时被调入内存。</p>
+<h4 id="存在映射的页如何映射"><a href="#存在映射的页如何映射" class="headerlink" title="存在映射的页如何映射"></a>存在映射的页如何映射</h4><p>虚拟地址空间由固定大小的单元组成，这种固定大小的单元称为 <code>页(pages)</code>。而相对的，物理内存中也有固定大小的物理单元，称为 <code>页框(page frames)</code>。页和页框的大小一样。在上面这个例子中，页的大小为 4KB ，但是实际的使用过程中页的大小范围可能是 512 字节 - 1G 字节的大小。对应于 64 KB 的虚拟地址空间和 32 KB 的物理内存，可得到 16 个虚拟页面和 8 个页框。RAM 和磁盘之间的交换总是以整个页为单元进行交换的。</p>
+<p>程序试图访问地址时，例如执行下面这条指令</p>
+<figure class="highlight plaintext"><table><tbody><tr><td class="code"><pre><span class="line">MOV REG, 0</span><br><span class="line">复制代码</span><br></pre></td></tr></tbody></table></figure>
+
+<p>会将虚拟地址 0 送到 MMU。MMU 看到虚拟地址落在页面 0 （0 - 4095），根据其映射结果，这一页面对应的页框 2 （8192 - 12287），因此 MMU 把地址变换为 8192 ，并把地址 8192 送到总线上。内存对 MMU 一无所知，它只看到一个对 8192 地址的读写请求并执行它。MMU 从而有效的把所有虚拟地址 0 - 4095 映射到了 8192 - 12287 的物理地址。同样的，指令</p>
+<figure class="highlight plaintext"><table><tbody><tr><td class="code"><pre><span class="line">MOV REG, 8192</span><br><span class="line">复制代码</span><br></pre></td></tr></tbody></table></figure>
+
+<p>也被有效的转换为</p>
+<figure class="highlight plaintext"><table><tbody><tr><td class="code"><pre><span class="line">MOV REG, 24576</span><br><span class="line">复制代码</span><br></pre></td></tr></tbody></table></figure>
+
+<p>虚拟地址 8192（在虚拟页 2 中）被映射到物理地址 24576（在物理页框 6 中）上。</p>
+<p>通过恰当的设置 MMU，可以把 16 个虚拟页面映射到 8 个页框中的任何一个。但是这并没有解决虚拟地址空间比物理内存大的问题。</p>
+<p>上图中有 8 个物理页框，于是只有 8 个虚拟页被映射到了物理内存中，在上图中用 <code>X</code> 号表示的其他页面没有被映射。在实际的硬件中，会使用一个 <code>在/不在(Present/absent bit)</code>位记录页面在内存中的实际存在情况。</p>
+<h4 id="未映射的页如何映射"><a href="#未映射的页如何映射" class="headerlink" title="未映射的页如何映射"></a>未映射的页如何映射</h4><p>当程序访问一个未映射的页面，如执行指令</p>
+<figure class="highlight plaintext"><table><tbody><tr><td class="code"><pre><span class="line">MOV REG, 32780</span><br><span class="line">复制代码</span><br></pre></td></tr></tbody></table></figure>
+
+<p>将会发生什么情况呢？虚拟页面 8 （从 32768 开始）的第 12 个字节所对应的物理地址是什么？MMU 注意到该页面没有被映射（在图中用 X 号表示），于是 CPU 会<code>陷入(trap)</code>到操作系统中。这个陷入称为 <code>缺页中断(page fault)</code> 或者是 <code>缺页错误</code>。操作系统会选择一个很少使用的页并把它的内容写入磁盘（如果它不在磁盘上）。随后把需要访问的页面读到刚才回收的页框中，修改映射关系，然后重新启动引起陷入的指令。有点不太好理解，举个例子来看一下。</p>
+<p>例如，如果操作系统决定放弃页框 1，那么它将把虚拟机页面 8 装入物理地址 4096，并对 MMU 映射做两处修改。首先，它要将虚拟页中的 1 表项标记为未映射，使以后任何对虚拟地址 4096 - 8191 的访问都将导致陷入。随后把虚拟页面 8 的表项的叉号改为 1，因此在引起陷阱的指令重新启动时，它将把虚拟地址 32780 映射为物理地址（4096 + 12）。</p>
+<p>下面查看一下 MMU 的内部构造以便了解它们是如何工作的，以及了解为什么我们选用的页大小都是 2 的整数次幂。下图我们可以看到一个虚拟地址的例子</p>
+<p><img src="https://user-gold-cdn.xitu.io/2020/3/6/170ae7de9b517a4b?imageView2/0/w/1280/h/960/format/webp/ignore-error/1"></p>
+<p>虚拟地址 8196 （二进制 0010000000000100）用上面的页表映射图所示的 MMU 映射机制进行映射，输入的 16 位虚拟地址被分为 4 位的页号和 12 位的偏移量。4 位的页号可以表示 16 个页面，12 位的偏移可以为一页内的全部 4096 个字节。</p>
+<p>可用页号作为<code>页表(page table)</code> 的索引，以得出对应于该虚拟页面的页框号。如果<code>在/不在</code>位则是 0 ，则引起一个操作系统陷入。如果该位是 1，则将在页表中查到的页框号复制到输出寄存器的高 3 位中，再加上输入虚拟地址中的低 12 位偏移量。如此就构成了 15 位的物理地址。输出寄存器的内容随即被作为物理地址送到总线。</p>
+<h3 id="页表"><a href="#页表" class="headerlink" title="页表"></a>页表</h3><p>在上面这个简单的例子中，虚拟地址到物理地址的映射可以总结如下：虚拟地址被分为<code>虚拟页号（高位部分）</code>和<code>偏移量（低位部分）</code>。例如，对于 16 位地址和 4 KB 的页面大小，高 4 位可以指定 16 个虚拟页面中的一页，而低 12 位接着确定了所选页面中的偏移量（0-4095）。</p>
+<p>虚拟页号可作为页表的索引用来找到虚拟页中的内容。由页表项可以找到页框号（如果有的话）。然后把页框号拼接到偏移量的高位端，以替换掉虚拟页号，形成物理地址。</p>
+<p><img src="https://user-gold-cdn.xitu.io/2020/3/6/170ae7de9a1afbd9?imageView2/0/w/1280/h/960/format/webp/ignore-error/1"></p>
+<p>因此，页表的目的是把虚拟页映射到页框中。从数学上说，页表是一个函数，它的参数是虚拟页号，结果是物理页框号。</p>
+<p><img src="https://user-gold-cdn.xitu.io/2020/3/6/170ae7de986cd905?imageView2/0/w/1280/h/960/format/webp/ignore-error/1"></p>
+<p>通过这个函数可以把虚拟地址中的虚拟页转换为页框，从而形成物理地址。</p>
+<h4 id="页表项的结构"><a href="#页表项的结构" class="headerlink" title="页表项的结构"></a>页表项的结构</h4><p>下面我们探讨一下页表项的具体结构，上面你知道了页表项的大致构成，是由页框号和在/不在位构成的，现在我们来具体探讨一下页表项的构成</p>
+<p><img src="https://user-gold-cdn.xitu.io/2020/3/6/170ae7de999e819e?imageView2/0/w/1280/h/960/format/webp/ignore-error/1"></p>
+<p>页表项的结构是与机器相关的，但是不同机器上的页表项大致相同。上面是一个页表项的构成，不同计算机的页表项可能不同，但是一般来说都是 32 位的。页表项中最重要的字段就是<code>页框号(Page frame number)</code>。毕竟，页表到页框最重要的一步操作就是要把此值映射过去。下一个比较重要的就是<code>在/不在</code>位，如果此位上的值是 1，那么页表项是有效的并且能够被<code>使用</code>。如果此值是 0 的话，则表示该页表项对应的虚拟页面<code>不在</code>内存中，访问该页面会引起一个<code>缺页异常(page fault)</code>。</p>
+<p><code>保护位(Protection)</code> 告诉我们哪一种访问是允许的，啥意思呢？最简单的表示形式是这个域只有一位，<strong>0 表示可读可写，1 表示的是只读</strong>。</p>
+<p><code>修改位(Modified)</code> 和 <code>访问位(Referenced)</code> 会跟踪页面的使用情况。当一个页面被写入时，硬件会自动的设置修改位。修改位在页面重新分配页框时很有用。如果一个页面已经被修改过（即它是 <code>脏</code> 的），则必须把它写回磁盘。如果一个页面没有被修改过（即它是 <code>干净</code>的），那么重新分配时这个页框会被直接丢弃，因为磁盘上的副本仍然是有效的。这个位有时也叫做 <code>脏位(dirty bit)</code>，因为它反映了页面的状态。</p>
+<p><code>访问位(Referenced)</code> 在页面被访问时被设置，不管是读还是写。这个值能够帮助操作系统在发生缺页中断时选择要淘汰的页。不再使用的页要比正在使用的页更适合被淘汰。这个位在后面要讨论的<code>页面置换</code>算法中作用很大。</p>
+<p>最后一位用于禁止该页面被高速缓存，这个功能对于映射到设备寄存器还是内存中起到了关键作用。通过这一位可以禁用高速缓存。具有独立的 I/O 空间而不是用内存映射 I/O 的机器来说，并不需要这一位。</p>
+<p>在深入讨论下面问题之前，需要强调一下：虚拟内存本质上是用来创造一个地址空间的抽象，可以把它理解成为进程是对 CPU 的抽象，虚拟内存的实现，本质是将虚拟地址空间分解成页，并将每一项映射到物理内存的某个页框。因为我们的重点是如何管理这个虚拟内存的抽象。</p>
+<h3 id="加速分页过程"><a href="#加速分页过程" class="headerlink" title="加速分页过程"></a>加速分页过程</h3><p>到现在我们已经<code>虚拟内存(virtual memory)</code> 和 <code>分页(paging)</code> 的基础，现在我们可以把目光放在具体的实现上面了。在任何带有分页的系统中，都会需要面临下面这两个主要问题：</p>
+<ul>
+<li>  虚拟地址到物理地址的映射速度必须要快</li>
+<li>  如果虚拟地址空间足够大，那么页表也会足够大</li>
+</ul>
+<p>第一个问题是<strong>由于每次访问内存都需要进行虚拟地址到物理地址的映射</strong>，所有的指令最终都来自于内存，并且很多指令也会访问内存中的操作数。</p>
+<blockquote>
+<p>操作数：操作数是计算机指令中的一个组成部分，它规定了指令中进行数字运算的量 。操作数指出指令执行的操作所需要数据的来源。操作数是汇编指令的一个字段。比如，MOV、ADD 等。</p>
+</blockquote>
+<p>因此，每条指令可能会多次访问页表，如果执行一条指令需要 1 ns，那么页表查询需要在 0.2 ns 之内完成，以避免映射成为一个主要性能瓶颈。</p>
+<p>第二个问题是所有的现代操作系统都会使用至少 32 位的虚拟地址，并且 64 位正在变得越来越普遍。假设页大小为 4 KB，32 位的地址空间将近有 100 万页，而 64 位地址空间简直多到无法想象。</p>
+<p>对大而且快速的页映射的需要成为构建计算机的一个非常重要的约束。就像上面页表中的图一样，<strong>每一个表项对应一个虚拟页面，虚拟页号作为索引</strong>。在启动一个进程时，操作系统会把保存在内存中进程页表读副本放入寄存器中。</p>
+<blockquote>
+<p>最后一句话是不是不好理解？还记得页表是什么吗？它是虚拟地址到内存地址的映射页表。页表是虚拟地址转换的关键组成部分，它是访问内存中数据所必需的。在进程启动时，执行很多次虚拟地址到物理地址的转换，会把物理地址的副本从内存中读入到寄存器中，再执行这一转换过程。</p>
+</blockquote>
+<p>所以，在进程的运行过程中，不必再为页表而访问内存。使用这种方法的优势是<code>简单而且映射过程中不需要访问内存</code>。缺点是 <code>页表太大时，代价高昂</code>，而且每次上下文切换的时候都必须<code>装载整个页表</code>，这样会造成性能的降低。鉴于此，我们讨论一下加速分页机制和处理大的虚拟地址空间的实现方案</p>
+<h4 id="转换检测缓冲区"><a href="#转换检测缓冲区" class="headerlink" title="转换检测缓冲区"></a>转换检测缓冲区</h4><p>我们首先先来一起探讨一下加速分页的问题。大部分优化方案都是从内存中的页表开始的。这种设计对效率有着巨大的影响。考虑一下，例如，假设一条 1 字节的指令要把一个寄存器中的数据复制到另一个寄存器。在不分页的情况下，这条指令只访问一次内存，即从内存取出指令。有了分页机制后，会因为要访问页表而需要更多的内存访问。由于执行速度通常被 CPU 从内存中取指令和数据的速度所限制，这样的话，两次访问才能实现一次的访问效果，所以内存访问的性能会下降一半。在这种情况下，根本不会采用分页机制。</p>
+<blockquote>
+<p>什么是 1 字节的指令？我们以 8085 微处理器为例来说明一下，在 8085 微处理中，一共有 3 种字节指令，它们分别是 <code>1-byte(1 字节)</code>、<code>2-byte(2 字节)</code>、<code>3-byte(3 字节)</code>，我们分别来说一下</p>
+<p>1-byte：1 字节的操作数和操作码共同以 1 字节表示；操作数是内部寄存器，并被编码到指令中；指令需要一个存储位置来将单个寄存器存储在存储位置中。没有操作数的指令也是 1-byte 指令。</p>
+<p>例如：MOV B,C 、LDAX B、NOP、HLT（这块不明白的读者可以自行查阅）</p>
+<p>2-byte: 2 字节包括：第一个字节指定的操作码；第二个字节指定操作数；指令需要两个存储器位置才能存储在存储器中。</p>
+<p>例如 MVI B, 26 H、IN 56 H</p>
+<p>3-byte: 在 3 字节指令中，第一个字节指定操作码；后面两个字节指定 16 位的地址；第二个字节保存<code>低位</code>地址；第三个字节保存 <code>高位</code>地址。指令需要三个存储器位置才能将单个字节存储在存储器中。</p>
+<p>例如 LDA 2050 H、JMP 2085 H</p>
+</blockquote>
+<p>大多数程序总是对少量页面进行多次访问，而不是对大量页面进行少量访问。因此，只有很少的页面能够被再次访问，而其他的页表项很少被访问。</p>
+<blockquote>
+<p>页表项一般也被称为 <code>Page Table Entry(PTE)</code>。</p>
+</blockquote>
+<p>基于这种设想，提出了一种方案，即从硬件方面来解决这个问题，为计算机设置一个小型的硬件设备，能够将虚拟地址直接映射到物理地址，而不必再访问页表。这种设备被称为<code>转换检测缓冲区(Translation Lookaside Buffer, TLB)</code>，有时又被称为 <code>相联存储器(associate memory)</code> 。</p>
+<table>
+<thead>
+<tr>
+<th>有效位</th>
+<th>虚拟页面号</th>
+<th>修改位</th>
+<th>保护位</th>
+<th>页框号</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>1</td>
+<td>140</td>
+<td>1</td>
+<td>RW</td>
+<td>31</td>
+</tr>
+<tr>
+<td>1</td>
+<td>20</td>
+<td>0</td>
+<td>R X</td>
+<td>38</td>
+</tr>
+<tr>
+<td>1</td>
+<td>130</td>
+<td>1</td>
+<td>RW</td>
+<td>29</td>
+</tr>
+<tr>
+<td>1</td>
+<td>129</td>
+<td>1</td>
+<td>RW</td>
+<td>62</td>
+</tr>
+<tr>
+<td>1</td>
+<td>19</td>
+<td>0</td>
+<td>R X</td>
+<td>50</td>
+</tr>
+<tr>
+<td>1</td>
+<td>21</td>
+<td>0</td>
+<td>R X</td>
+<td>45</td>
+</tr>
+<tr>
+<td>1</td>
+<td>860</td>
+<td>1</td>
+<td>RW</td>
+<td>14</td>
+</tr>
+<tr>
+<td>1</td>
+<td>861</td>
+<td>1</td>
+<td>RW</td>
+<td>75</td>
+</tr>
+</tbody></table>
+<p>​ TLB 加速分页</p>
+<p>TLB 通常位于 MMU 中，包含少量的表项，每个表项都记录了页面的相关信息，除了虚拟页号外，其他表项都和页表是一一对应的</p>
+<p><img src="https://user-gold-cdn.xitu.io/2020/3/6/170ae7dec60a3ecd?imageView2/0/w/1280/h/960/format/webp/ignore-error/1"></p>
+<p>是不是你到现在还是有点不理解什么是 TLB，TLB 其实就是一种内存缓存，用于减少访问内存所需要的时间，它就是 MMU 的一部分，TLB 会将虚拟地址到物理地址的转换存储起来，通常可以称为<code>地址翻译缓存(address-translation cache)</code>。TLB 通常位于 CPU 和 CPU 缓存之间，它与 CPU 缓存是不同的缓存级别。下面我们来看一下 TLB 是如何工作的。</p>
+<p>当一个 MMU 中的虚拟地址需要进行转换时，硬件首先检查虚拟页号与 TLB 中所有表项进行并行匹配，判断虚拟页是否在 TLB 中。如果找到了有效匹配项，并且要进行的访问操作没有违反保护位的话，则将页框号直接从 TLB 中取出而不用再直接访问页表。如果虚拟页在 TLB 中但是违反了保护位的权限的话（比如只允许读但是是一个写指令），则会生成一个<code>保护错误(protection fault)</code> 返回。</p>
+<p>上面探讨的是虚拟地址在 TLB 中的情况，那么如果虚拟地址不再 TLB 中该怎么办？如果 MMU 检测到没有有效的匹配项，就会进行正常的页表查找，然后从 TLB 中逐出一个表项然后把从页表中找到的项放在 TLB 中。当一个表项被从 TLB 中清除出，将修改位复制到内存中页表项，除了访问位之外，其他位保持不变。当页表项从页表装入 TLB 中时，所有的值都来自于内存。</p>
+<p><img src="https://user-gold-cdn.xitu.io/2020/3/6/170ae7dee8c45b87?imageView2/0/w/1280/h/960/format/webp/ignore-error/1"></p>
+<h4 id="软件-TLB-管理"><a href="#软件-TLB-管理" class="headerlink" title="软件 TLB 管理"></a>软件 TLB 管理</h4><p>直到现在，我们假设每台电脑都有可以被硬件识别的页表，外加一个 TLB。在这个设计中，TLB 管理和处理 TLB 错误完全由硬件来完成。仅仅当页面不在内存中时，才会发生操作系统的<code>陷入(trap)</code>。</p>
+<p>在以前，我们上面的假设通常是正确的。但是，许多现代的 <code>RISC</code> 机器，包括 SPARC、MIPS 和 HP PA，几乎所有的页面管理都是在软件中完成的。</p>
+<blockquote>
+<p>精简指令集计算机或 RISC 是一种计算机指令集，它使计算机的微处理器的每条指令（CPI）周期比复杂指令集计算机（CISC）少</p>
+</blockquote>
+<p>在这些计算机上，TLB 条目由操作系统显示加载。当发生 TLB 访问丢失时，<strong>不再是由 MMU 到页表中查找并取出需要的页表项，而是生成一个 TLB 失效并将问题交给操作系统解决</strong>。操作系统必须找到该页，把它从 TLB 中移除（移除页表中的一项），然后把新找到的页放在 TLB 中，最后再执行先前出错的指令。然而，所有这些操作都必须通过少量指令完成，因为 TLB 丢失的发生率要比出错率高很多。</p>
+<p><img src="https://user-gold-cdn.xitu.io/2020/3/6/170ae7df00142510?imageView2/0/w/1280/h/960/format/webp/ignore-error/1"></p>
+<p>无论是用硬件还是用软件来处理 TLB 失效，常见的方式都是找到页表并执行索引操作以定位到将要访问的页面，在软件中进行搜索的问题是保存页表的页可能不在 TLB 中，这将在处理过程中导致其他 TLB 错误。改善方法是可以在内存中的固定位置维护一个大的 TLB 表项的高速缓存来减少 TLB 失效。通过首先检查软件的高速缓存，<code>操作系统</code> 能够有效的减少 TLB 失效问题。</p>
+<p>TLB 软件管理会有两种 TLB 失效问题，当一个页访问在内存中而不在 TLB 中时，将产生 <code>软失效(soft miss)</code>，那么此时要做的就是把页表更新到 TLB 中（我们上面探讨的过程），而不会产生磁盘 I/O，处理仅仅需要一些机器指令在几纳秒的时间内完成。然而，当页本身不在内存中时，将会产生<code>硬失效(hard miss)</code>，那么此时就需要从磁盘中进行页表提取，硬失效的处理时间通常是软失效的百万倍。在页表结构中查找映射的过程称为 <code>页表遍历(page table walk)</code>。</p>
+<p><img src="https://user-gold-cdn.xitu.io/2020/3/6/170ae7df1855c112?imageView2/0/w/1280/h/960/format/webp/ignore-error/1"></p>
+<p>上面的这两种情况都是理想情况下出现的现象，但是在实际应用过程中情况会更加复杂，未命中的情况可能既不是硬失效又不是软失效。一些未命中可能更<code>软</code>或更<code>硬</code>（偷笑）。比如，如果页表遍历的过程中没有找到所需要的页，那么此时会出现三种情况：</p>
+<ul>
+<li>  所需的页面就在内存中，但是却没有记录在进程的页表中，这种情况可能是由其他进程从磁盘掉入内存，这种情况只需要把页正确映射就可以了，而不需要在从硬盘调入，这是一种软失效，称为 <code>次要缺页错误(minor page fault)</code>。</li>
+<li>  基于上述情况，如果需要从硬盘直接调入页面，这就是<code>严重缺页错误(major page falut)</code>。</li>
+<li>  还有一种情况是，程序可能访问了一个非法地址，根本无需向 TLB 中增加映射。此时，操作系统会报告一个 <code>段错误(segmentation fault)</code> 来终止程序。只有第三种缺页属于程序错误，其他缺页情况都会被硬件或操作系统以降低程序性能为代价来修复</li>
+</ul>
+<h3 id="针对大内存的页表"><a href="#针对大内存的页表" class="headerlink" title="针对大内存的页表"></a>针对大内存的页表</h3><p>还记得我们讨论的是什么问题吗？（捂脸），可能讨论的太多你有所不知道了，我再提醒你一下，上面<code>加速分页</code>过程讨论的是<strong>虚拟地址到物理地址的映射速度必须要快</strong>的问题，还有一个问题是 <strong>如果虚拟地址空间足够大，那么页表也会足够大</strong>的问题，如何处理巨大的虚拟地址空间，下面展开我们的讨论。</p>
+<h4 id="多级页表"><a href="#多级页表" class="headerlink" title="多级页表"></a>多级页表</h4><p>第一种方案是使用<code>多级页表(multi)</code>，下面是一个例子</p>
+<p><img src="https://user-gold-cdn.xitu.io/2020/3/6/170ae7df15cc2753?imageView2/0/w/1280/h/960/format/webp/ignore-error/1"></p>
+<p>32 位的虚拟地址被划分为 10 位的 PT1 域，10 位的 PT2 域，还有 12 位的 Offset 域。因为偏移量是 12 位，所以页面大小是 4KB，公有 2^20 次方个页面。</p>
+<p><strong>引入多级页表的原因是避免把全部页表一直保存在内存中。不需要的页表就不应该保留</strong>。</p>
+<p>多级页表是一种分页方案，它由两个或多个层次的分页表组成，也称为分层分页。级别1（level 1）页面表的条目是指向级别 2（level 2） 页面表的指针，级别2页面表的条目是指向级别 3（level 3） 页面表的指针，依此类推。最后一级页表存储的是实际的信息。</p>
+<p>下面是一个二级页表的工作过程</p>
+<p><img src="https://user-gold-cdn.xitu.io/2020/3/6/170ae7df1d7f2703?imageView2/0/w/1280/h/960/format/webp/ignore-error/1"></p>
+<p>在最左边是顶级页表，它有 1024 个表项，对应于 10 位的 PT1 域。当一个虚拟地址被送到 MMU 时，MMU 首先提取 PT1 域并把该值作为访问顶级页表的索引。因为整个 4 GB （即 32 位）虚拟地址已经按 4 KB 大小分块，所以顶级页表中的 1024 个表项的每一个都表示 4M 的块地址范围。</p>
+<p>由索引顶级页表得到的表项中含有二级页表的地址或页框号。顶级页表的表项 0 指向程序正文的页表，表项 1 指向含有数据的页表，表项 1023 指向堆栈的页表，其他的<code>项（用阴影表示）</code>表示没有使用。现在把 PT2 域作为访问选定的二级页表的索引，以便找到虚拟页面的对应页框号。</p>
+<h4 id="倒排页表"><a href="#倒排页表" class="headerlink" title="倒排页表"></a>倒排页表</h4><p>针对分页层级结构中不断增加的替代方法是使用 <code>倒排页表(inverted page tables)</code>。采用这种解决方案的有 PowerPC、UltraSPARC 和 Itanium。在这种设计中，实际内存中的每个页框对应一个表项，而不是每个虚拟页面对应一个表项。</p>
+<p>虽然倒排页表节省了大量的空间，但是它也有自己的缺陷：那就是从虚拟地址到物理地址的转换会变得很困难。当进程 n 访问虚拟页面 p 时，硬件不能再通过把 p 当作指向页表的一个索引来查找物理页。而是必须搜索整个倒排表来查找某个表项。另外，搜索必须对每一个内存访问操作都执行一次，而不是在发生缺页中断时执行。</p>
+<p>解决这一问题的方式时使用 TLB。当发生 TLB 失效时，需要用软件搜索整个倒排页表。一个可行的方式是建立一个散列表，用虚拟地址来散列。当前所有内存中的具有相同散列值的虚拟页面被链接在一起。如下图所示</p>
+<p><img src="https://user-gold-cdn.xitu.io/2020/3/6/170ae7df20c0bac4?imageView2/0/w/1280/h/960/format/webp/ignore-error/1"></p>
+<p>如果散列表中的槽数与机器中物理页面数一样多，那么散列表的冲突链的长度将会是 1 个表项的长度，这将会大大提高映射速度。一旦页框被找到，新的（虚拟页号，物理页框号）就会被装在到 TLB 中。</p>
+<h2 id="刊误"><a href="#刊误" class="headerlink" title="刊误"></a>刊误</h2><p><img src="https://user-gold-cdn.xitu.io/2020/3/6/170ae7df30ab2ada?imageView2/0/w/1280/h/960/format/webp/ignore-error/1"></p>
+<p>P115 页，两条线位置画反，根据下面的描述很容易误导他人，望修正。</p>
+<p>文章参考：</p>
+<p><a target="_blank" rel="noopener" href="https://en.wikipedia.org/wiki/Page_replacement_algorithm">en.wikipedia.org/wiki/Page_r…</a></p>
+<p><a target="_blank" rel="noopener" href="http://faculty.salina.k-state.edu/tim/ossg/Memory/virt_mem/page_replace.html">faculty.salina.k-state.edu/tim/ossg/Me…</a></p>
+<p><a target="_blank" rel="noopener" href="https://www.geeksforgeeks.org/page-replacement-algorithms-in-operating-systems/">www.geeksforgeeks.org/page-replac…</a></p>
+<p><a target="_blank" rel="noopener" href="https://www.geeksforgeeks.org/multilevel-paging-in-operating-system/">www.geeksforgeeks.org/multilevel-…</a></p>
+<p><a target="_blank" rel="noopener" href="https://en.wikipedia.org/wiki/Translation_lookaside_buffer">en.wikipedia.org/wiki/Transl…</a></p>
+<p><a target="_blank" rel="noopener" href="https://electricalvoice.com/instruction-word-size-8085-microprocessor/">electricalvoice.com/instruction…</a></p>
+<p><a target="_blank" rel="noopener" href="https://en.wikipedia.org/wiki/Page_table">en.wikipedia.org/wiki/Page_t…</a></p>
+<p><a target="_blank" rel="noopener" href="https://www.javatpoint.com/os-page-table">www.javatpoint.com/os-page-tab…</a></p>
+<p><a target="_blank" rel="noopener" href="https://baike.baidu.com/item/%E5%86%85%E5%AD%98/103614?fr=aladdin">baike.baidu.com/item/内存/103…</a></p>
+<p><a target="_blank" rel="noopener" href="https://baike.baidu.com/item/%E6%95%B0%E6%8D%AE%E6%AE%B5/5136260?fromtitle=data%20segment&amp;fromid=18082638&amp;fr=aladdin">baike.baidu.com/item/数据段/51…</a></p>
+<p><a target="_blank" rel="noopener" href="https://blog.csdn.net/One_L_Star/article/details/81901186">blog.csdn.net/One_L_Star/…</a></p>
+<p>《现代操作系统》第四版</p>
+<p>《Modern Operation System》fourth</p>
+<p><a target="_blank" rel="noopener" href="https://baike.baidu.com/item/SATA%E7%A1%AC%E7%9B%98/3947233?fr=aladdin">baike.baidu.com/item/SATA硬盘…</a></p>
+<p><a target="_blank" rel="noopener" href="https://baike.baidu.com/item/%E8%99%9A%E6%8B%9F%E5%9C%B0%E5%9D%80/1329947?fr=aladdin">baike.baidu.com/item/虚拟地址/1…</a></p>
+<p><a target="_blank" rel="noopener" href="https://juejin.im/post/5e61eafff265da574c5683db?utm_source=gold_browser_extension">原文</a></p>
+
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F/" rel="tag"># 操作系统</a>
+              <a href="/tags/%E8%BD%AC%E8%BD%BD/" rel="tag"># 转载</a>
+          </div>
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-item">
+                <a href="/2020/03/01/High-Quality-Gifs-with-FFMPEG/" rel="prev" title="High Quality Gifs with FFMPEG">
+                  <i class="fa fa-chevron-left"></i> High Quality Gifs with FFMPEG
+                </a>
+            </div>
+            <div class="post-nav-item">
+                <a href="/2020/03/14/%E6%96%87%E4%BB%B6%E6%93%8D%E4%BD%9C%E7%9B%91%E6%8E%A7/" rel="next" title="文件操作监控">
+                  文件操作监控 <i class="fa fa-chevron-right"></i>
+                </a>
+            </div>
+          </div>
+    </footer>
+  </article>
+</div>
+
+
+
+
+
+
+</div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+
+
+<div class="copyright">
+  © 
+  <span itemprop="copyrightYear">2021</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">疯狂的茶几</span>
+</div>
+<div class="wordcount">
+  <span class="post-meta-item">
+    <span class="post-meta-item-icon">
+      <i class="fa fa-chart-line"></i>
+    </span>
+    <span title="站点总字数">153k</span>
+  </span>
+  <span class="post-meta-item">
+    <span class="post-meta-item-icon">
+      <i class="fa fa-coffee"></i>
+    </span>
+    <span title="站点阅读时长">2:19</span>
+  </span>
+</div>
+
+    </div>
+  </footer>
+
+  
+  <script src="https://cdn.jsdelivr.net/npm/animejs@3.2.1/lib/anime.min.js" integrity="sha256-XL2inqUJaslATFnHdJOi9GfQ60on8Wx1C2H8DYiN1xY=" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@next-theme/pjax@0.5.0/pjax.min.js" integrity="sha256-3NkoLDrmHLTYj7csHIZSr0MHAFTXth7Ua/DDt4MRUAg=" crossorigin="anonymous"></script>
+
+
+  
+
+
+
+
+
+  
+  
+
+
+  
+
+
+
+
+
+
+
+<script src="/bundle.js"></script><script>{&quot;enable&quot;:true,&quot;theme&quot;:&quot;forest&quot;,&quot;js&quot;:{&quot;url&quot;:&quot;https:&#x2F;&#x2F;cdn.jsdelivr.net&#x2F;npm&#x2F;mermaid@8.9.3&#x2F;dist&#x2F;mermaid.min.js&quot;,&quot;integrity&quot;:&quot;sha256-OyJHvRcZHaRR6Ig73ppxF4QXk8HzvfgTprRWkulCkfY&#x3D;&quot;}}</script></body></html>
